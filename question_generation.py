@@ -13,7 +13,7 @@ cC = {
 
 def generate_question(t='cC'):
     if t == 'cC':
-        cid = random.randint(0, len(c))
+        cid = random.randint(0, len(c) - 1)
         c_ = c[cid]
         C_ = cC[c_]
         return 'Назовите столицу ' + c_ + '.', C_
