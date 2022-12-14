@@ -25,7 +25,7 @@ class GeoogespiderSpider(scrapy.Spider):
         items = SpiderGeoogeItem()
         question = response.xpath('//div[contains(@class, "pbody")]/p/text()').extract()
         answer = response.xpath('//div[contains(@class, "answer")]/span/text()').extract()
-        items["question"] = ''.join(question).strip()
+        items["question"] = ''.join(question).strip().split(" описанию.")[1]
         items["answer"] = ' '.join(answer)[7:].strip()
         yield items
 

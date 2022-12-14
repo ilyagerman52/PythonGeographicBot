@@ -78,6 +78,12 @@ def generate_question(category):
             questions = json.load(f)
         cid = random.randint(0, len(questions["questions"]) - 1)
         return questions["questions"][cid]["question"], questions["questions"][cid]["answer"]
+    if t == "rd": # возврощаемый answer это одна строка вида "Свердловская|Свердловская область' думаю надо сделать
+        # проверку того что ответ - пользователя подстрока правильного
+        with open("rd.json") as f:
+            questions = json.load(f)
+        cid = random.randint(0, len(questions["questions"]) - 1)
+        return questions["questions"][cid]["question"], questions["questions"][cid]["answer"]
 
 
 
