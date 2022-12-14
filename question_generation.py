@@ -4,6 +4,8 @@ import json
 from geopy import geocoders
 from datetime import datetime
 
+
+
 token_accu = 'gBj1vV4C8jprBzXRFLHpyAriTn7nvO3G'
 
 c = ['Russia', 'China', 'Canada', 'USA']
@@ -56,22 +58,22 @@ def weather_in_city(city):
 
 
 def generate_question(category):
-    if category == 'cC':
+    if category == 'cC': # country -> Capital
         cid = random.randint(0, len(c) - 1)
         c_ = c[cid]
         C_ = cC[c_]
         return 'Назовите столицу ' + c_ + '.', C_
-    elif category == 'wthr':
+    elif category == 'wthr': # weather -> town
         tid = random.randint(0, len(C) - 1)
         t_ = t[tid]
         you_weather = weather_in_city(t_)
         return 'Угадайте город. Температура: ' + str(you_weather['temp']) + ', а на небе: ' + str(you_weather['sky']), t_
-    elif category == 'tc':
+    elif category == 'tc': # town -> country
         tid = random.randint(0, len(c) - 1)
         t_ = t[tid]
         c_ = tc[t_]
         return 'В какой стране находится город ' + t_, c_
-    if t == "cd":
+    elif category == "cd": # country <- description
         with open("cd.json") as f:
             questions = json.load(f)
         cid = random.randint(0, len(questions["questions"]) - 1)

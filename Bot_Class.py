@@ -18,12 +18,15 @@ class Bot:
     C - capital
     l - lake
     r - river
+    t - town
+    cd - country description
+    wthr - weather
     """
     def __init__(self, token):
         self.bot = telebot.TeleBot(token)
         self.bot_username = self.bot.user.username
         self.bot_id = self.bot.user.id
-        self.question_types = ['cC', 'tc', 'wthr']
+        self.question_types = ['cC', 'tc', 'wthr', 'cd']
         self.chats = dict()
 
     def print_special_message(self, chat_id, t='unexpected'):
@@ -44,7 +47,8 @@ class Bot:
             but_cC = types.InlineKeyboardButton(text='Назвать столицу', callback_data='cC')
             but_tc = types.InlineKeyboardButton(text='Назвать страну по городу в ней', callback_data='tc')
             but_wthr = types.InlineKeyboardButton(text='Угадать город по погоде', callback_data='wthr')
-            markup.add(but_cC, but_tc, but_wthr)
+            but_cd = types.InlineKeyboardButton(text='Угадать страну по описанию из ЕГЭ', callback_data='cd')
+            markup.add(but_cC, but_tc, but_wthr, but_cd)
             self.bot.send_message(chat_id, message_text, reply_markup=markup)
 
     def reply_inline_call(self, call):
