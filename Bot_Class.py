@@ -21,7 +21,8 @@ class Bot:
         self.bot = telebot.TeleBot(token)
         self.bot_username = self.bot.user.username
         self.bot_id = self.bot.user.id
-        self.question_types = ['cC', 'tc']
+        self.question_types = ['cC', 'tc', 'wthr']
+        self.last_question = 'cC'
         self.chats = dict()
 
     def print_special_message(self, chat_id, t='unexpected'):
@@ -41,7 +42,8 @@ class Bot:
             markup = types.InlineKeyboardMarkup(row_width=1)
             but_cC = types.InlineKeyboardButton(text='Назвать столицу', callback_data='cC')
             but_tc = types.InlineKeyboardButton(text='Назвать страну по городу в ней', callback_data='tc')
-            markup.add(but_cC, but_tc)
+            but_wthr = types.InlineKeyboardButton(text='Назвать город по погоде', callback_data='wthr')
+            markup.add(but_cC, but_tc, but_wthr)
             self.bot.send_message(chat_id, message_text, reply_markup=markup)
 
     def reply_inline_call(self, call):
@@ -64,8 +66,9 @@ class Bot:
             self.bot.edit_message_reply_markup(call.message.chat.id, call.message.id, reply_markup=None)
             pass
 
-    def ask(self, chat_id, t='cC'):
-        question, answer = generate_question(t)
+    def ask(self, chat_id, t):
+        self.last_question = t
+       	question, answer = generate_question(self.last_question)
         question = self.chats[chat_id].premessage + '\n\n' + question
         try:
             markup = types.InlineKeyboardMarkup()
@@ -85,11 +88,10 @@ class Bot:
         elif received_answer == self.chats[chat_id].waiting_answer:
             self.chats[chat_id].premessage = 'Верно!'
             self.chats[chat_id].waiting_answer = None
-            self.ask(message.chat.id, 'cC')
+            self.ask(message.chat.id, self.last_question)
         else:
             self.chats[chat_id].premessage = 'Неверно! Правильный ответ: ' + self.chats[chat_id].waiting_answer
             self.chats[chat_id].waiting_answer = None
-            self.ask(message.chat.id, 'cC')
+            self.ask(message.chat.id, self.last_question)
     def start(self):
         self.bot.polling(none_stop=True, interval=0)
-
