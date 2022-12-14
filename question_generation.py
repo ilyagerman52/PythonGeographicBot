@@ -71,6 +71,12 @@ def generate_question(category):
         t_ = t[tid]
         c_ = tc[t_]
         return 'В какой стране находится город ' + t_, c_
+    if t == "cd":
+        with open("cd.json") as f:
+            questions = json.load(f)
+        cid = random.randint(0, len(questions["questions"]) - 1)
+        return questions["questions"][cid]["question"], questions["questions"][cid]["answer"]
+
 
 
 
