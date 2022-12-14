@@ -19,21 +19,5 @@ def answer(message):
 @GeoBot.bot.message_handler(commands=['help'])
 def help(message):
     GeoBot.print_special_message(message.chat.id, 'help')
-#     pass
-# @GeoBot.bot.message_handler()
-# def func_name2():
-#     pass
-# @GeoBot.bot.message_handler()
-# def func_name3():
-#     pass
-# @GeoBot.bot.message_handler()
-# def func_name4():
-#     pass
-
-
-
-
-
-
 
 GeoBot.start()
