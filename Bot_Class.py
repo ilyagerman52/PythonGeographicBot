@@ -5,6 +5,8 @@ from dataclasses import dataclass
 
 from question_generation import generate_question
 from MESSAGES import *
+
+
 @dataclass
 class Chat:
     premessage = ''
@@ -12,6 +14,8 @@ class Chat:
     last_asked_message = None
     streak = 0
     category = None
+
+
 class Bot:
     """
     c - country
@@ -20,13 +24,15 @@ class Bot:
     r - river
     t - town
     cd - country description
+    rd - region (from Russia) description
     wthr - weather
     """
+
     def __init__(self, token):
         self.bot = telebot.TeleBot(token)
         self.bot_username = self.bot.user.username
         self.bot_id = self.bot.user.id
-        self.question_types = ['cC', 'tc', 'wthr', 'cd']
+        self.question_types = ['cC', 'tc', 'wthr', 'cd', 'rd']
         self.chats = dict()
 
     def print_special_message(self, chat_id, t='unexpected'):
@@ -48,7 +54,8 @@ class Bot:
             but_tc = types.InlineKeyboardButton(text='Назвать страну по городу в ней', callback_data='tc')
             but_wthr = types.InlineKeyboardButton(text='Угадать город по погоде', callback_data='wthr')
             but_cd = types.InlineKeyboardButton(text='Угадать страну по описанию из ЕГЭ', callback_data='cd')
-            markup.add(but_cC, but_tc, but_wthr, but_cd)
+            but_rd = types.InlineKeyboardButton(text='Угадать регион России по описанию из ЕГЭ', callback_data='rd')
+            markup.add(but_cC, but_tc, but_wthr, but_cd, but_rd)
             self.bot.send_message(chat_id, message_text, reply_markup=markup)
 
     def reply_inline_call(self, call):
@@ -68,11 +75,15 @@ class Bot:
             self.ask(chat_id, call.data)
         elif call.data == 'change_category':
             if chat_id not in self.chats: self.chats[chat_id] = Chat()
-            self.chats[call.message.id].premessage = ''
+            self.chats[call.message.chat.id].premessage = ''
+            self.chats[call.message.chat.id].waiting_answer = None
+            self.chats[call.message.chat.id].category = None
             self.bot.edit_message_reply_markup(call.message.chat.id, call.message.id, reply_markup=None)
             self.print_special_message(chat_id, 'choose_category')
         elif call.data == 'exit':
-            self.chats[call.message.id].premessage = ''
+            self.chats[call.message.chat.id].premessage = ''
+            self.chats[call.message.chat.id].waiting_answer = None
+            self.chats[call.message.chat.id].category = None
             self.bot.edit_message_text('Ответы на вопросы закончились', call.message.chat.id, call.message.id)
             self.bot.edit_message_reply_markup(call.message.chat.id, call.message.id, reply_markup=None)
             pass
@@ -82,7 +93,8 @@ class Bot:
         question = self.chats[chat_id].premessage + '\n\n' + question
         try:
             markup = types.InlineKeyboardMarkup()
-            but_change = types.InlineKeyboardButton(text='Хочу сменить категорию вопросов', callback_data='change_category')
+            but_change = types.InlineKeyboardButton(text='Хочу сменить категорию вопросов',
+                                                    callback_data='change_category')
             but_exit = types.InlineKeyboardButton(text='Больше не хочу отвечать на вопросы', callback_data='exit')
             markup.add(but_change, but_exit)
             self.bot.send_message(chat_id, question, reply_markup=markup)
@@ -95,7 +107,9 @@ class Bot:
         received_answer = message.text.strip()
         if self.chats[chat_id].waiting_answer is None:
             self.print_special_message(message.chat.id, 'unexpected')
-        elif received_answer == self.chats[chat_id].waiting_answer:
+        elif (isinstance(self.chats[chat_id].waiting_answer, str)
+              and received_answer == self.chats[chat_id].waiting_answer) or \
+                (received_answer in self.chats[chat_id].waiting_answer):
             self.chats[chat_id].premessage = 'Верно!'
             self.chats[chat_id].waiting_answer = None
             self.chats[chat_id].streak += 1
@@ -105,6 +119,6 @@ class Bot:
             self.chats[chat_id].waiting_answer = None
             self.chats[chat_id].streak = 0
             self.ask(message.chat.id, self.chats[chat_id].category)
+
     def start(self):
         self.bot.polling(none_stop=True, interval=0)
-
