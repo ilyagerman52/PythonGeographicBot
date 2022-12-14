@@ -10,6 +10,8 @@ class Chat:
     premessage = ''
     waiting_answer = None
     last_asked_message = None
+    streak = 0
+    category = None
 class Bot:
     """
     c - country
@@ -22,19 +24,18 @@ class Bot:
         self.bot_username = self.bot.user.username
         self.bot_id = self.bot.user.id
         self.question_types = ['cC', 'tc', 'wthr']
-        self.last_question = 'cC'
         self.chats = dict()
 
     def print_special_message(self, chat_id, t='unexpected'):
         if t == 'unexpected':
-            self.bot.send_message(chat_id, 'Я тебя не понял. Справку можно вызвать командой /help')
+            self.bot.send_message(chat_id, UNEXPEXTED)
         elif t == 'hello':
             self.chats[chat_id] = Chat()
             markup = types.InlineKeyboardMarkup(row_width=1)
             but_y = types.InlineKeyboardButton(text="Да", callback_data='yes')
             but_n = types.InlineKeyboardButton(text="Посмотреть справку", callback_data='help')
             markup.add(but_y, but_n)
-            self.bot.send_message(chat_id, 'Привет! Готов отвечать на вопросы?', reply_markup=markup)
+            self.bot.send_message(chat_id, HELLO_MESSAGE, reply_markup=markup)
         elif t == 'help':
             self.bot.send_message(chat_id, HELP_MESSAGE, )
         elif t == 'choose_category':
@@ -42,7 +43,7 @@ class Bot:
             markup = types.InlineKeyboardMarkup(row_width=1)
             but_cC = types.InlineKeyboardButton(text='Назвать столицу', callback_data='cC')
             but_tc = types.InlineKeyboardButton(text='Назвать страну по городу в ней', callback_data='tc')
-            but_wthr = types.InlineKeyboardButton(text='Назвать город по погоде', callback_data='wthr')
+            but_wthr = types.InlineKeyboardButton(text='Угадать город по погоде', callback_data='tc')
             markup.add(but_cC, but_tc, but_wthr)
             self.bot.send_message(chat_id, message_text, reply_markup=markup)
 
@@ -57,6 +58,7 @@ class Bot:
             self.print_special_message(chat_id, 'choose_category')
         elif call.data in self.question_types:
             self.bot.edit_message_reply_markup(call.message.chat.id, call.message.id, reply_markup=None)
+            self.chats[chat_id].category = call.data
             self.ask(chat_id, call.data)
         elif call.data == 'change_category':
             self.bot.edit_message_reply_markup(call.message.chat.id, call.message.id, reply_markup=None)
@@ -66,9 +68,8 @@ class Bot:
             self.bot.edit_message_reply_markup(call.message.chat.id, call.message.id, reply_markup=None)
             pass
 
-    def ask(self, chat_id, t):
-        self.last_question = t
-       	question, answer = generate_question(self.last_question)
+    def ask(self, chat_id, category='cC'):
+        question, answer = generate_question(category)
         question = self.chats[chat_id].premessage + '\n\n' + question
         try:
             markup = types.InlineKeyboardMarkup()
@@ -88,10 +89,13 @@ class Bot:
         elif received_answer == self.chats[chat_id].waiting_answer:
             self.chats[chat_id].premessage = 'Верно!'
             self.chats[chat_id].waiting_answer = None
-            self.ask(message.chat.id, self.last_question)
+            self.chats[chat_id].streak += 1
+            self.ask(message.chat.id, self.chats[chat_id].category)
         else:
             self.chats[chat_id].premessage = 'Неверно! Правильный ответ: ' + self.chats[chat_id].waiting_answer
             self.chats[chat_id].waiting_answer = None
-            self.ask(message.chat.id, self.last_question)
+            self.chats[chat_id].streak = 0
+            self.ask(message.chat.id, self.chats[chat_id].category)
     def start(self):
         self.bot.polling(none_stop=True, interval=0)
+
