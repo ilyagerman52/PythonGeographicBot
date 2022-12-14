@@ -7,13 +7,19 @@ from datetime import datetime
 token_accu = 'gBj1vV4C8jprBzXRFLHpyAriTn7nvO3G'
 
 c = ['Russia', 'China', 'Canada', 'USA']
-cities = ['SPb', 'Toronto', 'Nankin', 'Boston']
+t = ['SPb', 'Toronto', 'Nankin', 'Boston']
 C = ['Moscow', 'Beijing', 'Ottawa', 'Washington']
 cC = {
     'Russia': 'Moscow',
     'China': 'Beijing',
     'Canada': 'Ottawa',
     'USA': 'Washington'
+}
+tc = {
+    'Spb' : 'Russia',
+    'Toronto' : 'Canada',
+    'Nankin' : 'China',
+    'Boston' : 'USA'
 }
 
 
@@ -49,17 +55,22 @@ def weather_in_city(city):
     return you_weather
 
 
-def generate_question(t):
-    if t == 'cC':
+def generate_question(category):
+    if category == 'cC':
         cid = random.randint(0, len(c) - 1)
         c_ = c[cid]
         C_ = cC[c_]
         return 'Назовите столицу ' + c_ + '.', C_
-    if t == 'wthr':
-    	cid = random.randint(0, len(C) - 1)
-    	c_ = C[cid]
-    	you_weather = weather_in_city(c_)
-    	return 'Угадайте город. Температура: ' + str(you_weather['temp']) + ', а на небе: ' + str(you_weather['sky']), c_
+    elif category == 'wthr':
+        tid = random.randint(0, len(C) - 1)
+        t_ = t[tid]
+        you_weather = weather_in_city(t_)
+        return 'Угадайте город. Температура: ' + str(you_weather['temp']) + ', а на небе: ' + str(you_weather['sky']), t_
+    elif category == 'tc':
+        tid = random.randint(0, len(c) - 1)
+        t_ = t[tid]
+        c_ = tc[t_]
+        return 'В какой стране находится город ' + t_, c_
 
 
 

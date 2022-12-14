@@ -43,7 +43,7 @@ class Bot:
             markup = types.InlineKeyboardMarkup(row_width=1)
             but_cC = types.InlineKeyboardButton(text='Назвать столицу', callback_data='cC')
             but_tc = types.InlineKeyboardButton(text='Назвать страну по городу в ней', callback_data='tc')
-            but_wthr = types.InlineKeyboardButton(text='Угадать город по погоде', callback_data='tc')
+            but_wthr = types.InlineKeyboardButton(text='Угадать город по погоде', callback_data='wthr')
             markup.add(but_cC, but_tc, but_wthr)
             self.bot.send_message(chat_id, message_text, reply_markup=markup)
 
@@ -54,16 +54,21 @@ class Bot:
             self.print_special_message(chat_id, 'help')
         elif call.data == 'yes':
             self.bot.edit_message_reply_markup(call.message.chat.id, call.message.id, reply_markup=None)
+            if chat_id not in self.chats: self.chats[chat_id] = Chat()
             self.chats[chat_id].premessage = 'Отлично!'
             self.print_special_message(chat_id, 'choose_category')
         elif call.data in self.question_types:
             self.bot.edit_message_reply_markup(call.message.chat.id, call.message.id, reply_markup=None)
+            if chat_id not in self.chats: self.chats[chat_id] = Chat()
             self.chats[chat_id].category = call.data
             self.ask(chat_id, call.data)
         elif call.data == 'change_category':
+            if chat_id not in self.chats: self.chats[chat_id] = Chat()
+            self.chats[call.message.id].premessage = ''
             self.bot.edit_message_reply_markup(call.message.chat.id, call.message.id, reply_markup=None)
             self.print_special_message(chat_id, 'choose_category')
         elif call.data == 'exit':
+            self.chats[call.message.id].premessage = ''
             self.bot.edit_message_text('Ответы на вопросы закончились', call.message.chat.id, call.message.id)
             self.bot.edit_message_reply_markup(call.message.chat.id, call.message.id, reply_markup=None)
             pass
