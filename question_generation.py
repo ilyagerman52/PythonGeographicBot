@@ -88,7 +88,16 @@ def generate_question(category, ans_hidden=True):
     elif category == "rnd": #random question
         cat = random.choice(["cC", "wthr", "tc", "cd", "rd"])
         return generate_question(cat)
-
+    elif category == "flg":
+        with open("images.json") as f:
+            questions = json.load(f)
+        cid = random.randint(0, len(questions["questions"]) - 1)
+        return questions["questions"][cid]["flag"], questions["questions"][cid]["name"], gen_wrong_answers('c', cid)
+    elif category == "shp":
+        with open("images.json") as f:
+            questions = json.load(f)
+        cid = random.randint(0, len(questions["questions"]) - 1)
+        return questions["questions"][cid]["shape"], questions["questions"][cid]["name"], gen_wrong_answers('c', cid)
 
 
 
