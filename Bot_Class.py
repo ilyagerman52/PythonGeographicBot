@@ -81,6 +81,7 @@ class Bot:
             self.bot.edit_message_reply_markup(call.message.chat.id, call.message.id, reply_markup=None)
             self.print_special_message(chat_id, 'choose_category')
         elif call.data == 'exit':
+            if chat_id not in self.chats: self.chats[chat_id] = Chat()
             self.chats[call.message.chat.id].premessage = ''
             self.chats[call.message.chat.id].waiting_answer = None
             self.chats[call.message.chat.id].category = None
@@ -90,6 +91,7 @@ class Bot:
 
     def ask(self, chat_id, category='cC'):
         question, answer = generate_question(category)
+        if chat_id not in self.chats: self.chats[chat_id] = Chat()
         question = self.chats[chat_id].premessage + '\n\n' + question
         try:
             markup = types.InlineKeyboardMarkup()
@@ -105,6 +107,7 @@ class Bot:
     def check_answer(self, message):
         chat_id = message.chat.id
         received_answer = message.text.strip()
+        if chat_id not in self.chats: self.chats[chat_id] = Chat()
         if self.chats[chat_id].waiting_answer is None:
             self.print_special_message(message.chat.id, 'unexpected')
         elif (isinstance(self.chats[chat_id].waiting_answer, str)

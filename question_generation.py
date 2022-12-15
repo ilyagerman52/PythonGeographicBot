@@ -4,26 +4,13 @@ import json
 from geopy import geocoders
 from datetime import datetime
 
+from database_parser import *
+
+c, cp = get_cp()
+t, tp, tc, cC = get_tpcC()
 
 
 token_accu = 'gBj1vV4C8jprBzXRFLHpyAriTn7nvO3G'
-
-c = ['Russia', 'China', 'Canada', 'USA']
-t = ['SPb', 'Toronto', 'Nankin', 'Boston']
-C = ['Moscow', 'Beijing', 'Ottawa', 'Washington']
-cC = {
-    'Russia': 'Moscow',
-    'China': 'Beijing',
-    'Canada': 'Ottawa',
-    'USA': 'Washington'
-}
-tc = {
-    'Spb' : 'Russia',
-    'Toronto' : 'Canada',
-    'Nankin' : 'China',
-    'Boston' : 'USA'
-}
-
 
 def geo_pos(city: str):
     geolocator = geocoders.Nominatim(user_agent="telebot")
@@ -59,17 +46,17 @@ def weather_in_city(city):
 
 def generate_question(category):
     if category == 'cC': # country -> Capital
-        cid = random.randint(0, len(c) - 1)
+        cid = random.randint(0, len(cC.keys()) - 1)
         c_ = c[cid]
         C_ = cC[c_]
         return 'Назовите столицу ' + c_ + '.', C_
     elif category == 'wthr': # weather -> town
-        tid = random.randint(0, len(C) - 1)
+        tid = random.randint(0, len(t) - 1)
         t_ = t[tid]
         you_weather = weather_in_city(t_)
         return 'Угадайте город. Температура: ' + str(you_weather['temp']) + ', а на небе: ' + str(you_weather['sky']), t_
     elif category == 'tc': # town -> country
-        tid = random.randint(0, len(c) - 1)
+        tid = random.randint(0, len(t) - 1)
         t_ = t[tid]
         c_ = tc[t_]
         return 'В какой стране находится город ' + t_, c_
