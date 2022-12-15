@@ -93,27 +93,25 @@ class Bot:
             self.chats[chat_id].premessage = 'Неверно! Правильный ответ: ' + self.chats[chat_id].waiting_answer
             self.ask(call.message.chat.id, self.chats[chat_id].category, self.chats[chat_id].ans_hidden)
         elif call.data in self.question_types:
-            self.bot.edit_message_reply_markup(call.message.chat.id, call.message.id, reply_markup=None)
-            if chat_id not in self.chats: self.chats[chat_id] = Chat()
+            self.bot.edit_message_reply_markup(chat_id, call.message.id, reply_markup=None)
             self.chats[chat_id].category = call.data
             self.ask(chat_id, call.data, self.chats[chat_id].ans_hidden)
         elif call.data == 'change_category':
-            if chat_id not in self.chats: self.chats[chat_id] = Chat()
-            self.chats[call.message.chat.id].premessage = ''
-            self.chats[call.message.chat.id].waiting_answer = None
-            self.chats[call.message.chat.id].category = None
-            self.bot.edit_message_reply_markup(call.message.chat.id, call.message.id, reply_markup=None)
+            self.chats[chat_id].premessage = ''
+            self.chats[chat_id].waiting_answer = None
+            self.chats[chat_id].category = None
+            self.bot.edit_message_reply_markup(chat_id, call.message.id, reply_markup=None)
             self.print_special_message(chat_id, 'choose_category')
         elif call.data == 'exit':
-            if chat_id not in self.chats: self.chats[chat_id] = Chat()
-            self.chats[call.message.chat.id].premessage = ''
-            self.chats[call.message.chat.id].waiting_answer = None
-            self.chats[call.message.chat.id].category = None
-            self.bot.edit_message_text('Ответы на вопросы закончились', call.message.chat.id, call.message.id)
-            self.bot.edit_message_reply_markup(call.message.chat.id, call.message.id, reply_markup=None)
-            pass
+            self.bot.send_message(chat_id, 'А придётся!')
+            self.chats[chat_id].premessage = ''
+            self.chats[chat_id].waiting_answer = None
+            self.chats[chat_id].category = None
+            time.sleep(1)
+            self.ask(chat_id, self.chats[chat_id].category, self.chats[chat_id].ans_hidden)
 
     def ask(self, chat_id, category='cC', ans_hidden=False):
+        if category is None: category = 'cC'
         if chat_id not in self.chats: self.chats[chat_id] = Chat()
         question, answer, vars = generate_question(category, ans_hidden=ans_hidden)
         question_image = question
