@@ -54,7 +54,7 @@ def gen_wrong_answers(cat, true_ans):
             new_ans = random.choice(list(cC.values()))
         elif cat == 't':
             new_ans = random.choice(t)
-        if new_ans != true_ans and new_ans not in wrong_answers:
+        if len(new_ans) > 2 and new_ans != true_ans and new_ans not in wrong_answers:
             wrong_answers.add(new_ans)
             count += 1
     return list(wrong_answers)
