@@ -36,7 +36,7 @@ class Bot:
         self.bot = telebot.TeleBot(token)
         self.bot_username = self.bot.user.username
         self.bot_id = self.bot.user.id
-        self.question_types = ['cC', 'tc', 'wthr', 'cd', 'rd', 'flg', 'shp']
+        self.question_types = ['cC', 'tc', 'wthr', 'cd', 'rd', 'flg', 'shp', 'rnd']
         self.chats = dict()
 
     def print_special_message(self, chat_id, t='unexpected'):
@@ -64,8 +64,9 @@ class Bot:
             but_rd = types.InlineKeyboardButton(text='Угадать регион России по описанию из ЕГЭ', callback_data='rd')
             but_flg = types.InlineKeyboardButton(text='Угадать страну по флагу', callback_data='flg')
             but_shp = types.InlineKeyboardButton(text='Угадать страну по очертаниям', callback_data='shp')
+            but_rnd = types.InlineKeyboardButton(text='Случайные вопросы', callback_data='rnd')
             but_vars = types.InlineKeyboardButton(text='Добавить/убрать варианты ответа', callback_data='change_vars')
-            markup.add(but_cC, but_tc, but_wthr, but_cd, but_rd, but_flg, but_shp, but_vars)
+            markup.add(but_cC, but_tc, but_wthr, but_cd, but_rd, but_flg, but_shp, but_rnd, but_vars)
             self.bot.send_message(chat_id, message_text, reply_markup=markup)
 
     def reply_inline_call(self, call):
@@ -120,7 +121,7 @@ class Bot:
         but_change = types.InlineKeyboardButton(text='Хочу сменить категорию вопросов',
                                                 callback_data='change_category')
         but_exit = types.InlineKeyboardButton(text='Больше не хочу отвечать на вопросы', callback_data='exit')
-        if not ans_hidden:
+        if not ans_hidden and category not in ['cd', 'rd']:
             but_correct = types.InlineKeyboardButton(text=answer, callback_data='correct_ans')
             but_vars = [but_correct]
             for var in vars:
@@ -159,7 +160,6 @@ class Bot:
             self.chats[chat_id].waiting_answer = None
             self.chats[chat_id].streak = 0
             self.ask(message.chat.id, self.chats[chat_id].category, self.chats[chat_id].ans_hidden)
-
 
     def start(self):
         self.bot.polling(none_stop=True, interval=0)

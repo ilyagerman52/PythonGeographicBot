@@ -20,6 +20,4 @@ def help(message):
 def answer(message):
     GeoBot.check_answer(message)
 
-
-
 GeoBot.start()

@@ -22,7 +22,6 @@ def code_location(latitude: str, longitude: str, token_accu: str):
                        f'{token_accu}&q={latitude},{longitude}&language=ru'
     resp_loc = requests.get(url_location_key, headers={"APIKey": token_accu})
     json_data = json.loads(resp_loc.text)
-    print(json_data)
     code = json_data['Key']
     return code
 
@@ -98,10 +97,3 @@ def generate_question(category, ans_hidden=True):
             questions = json.load(f)
         cid = random.randint(0, len(questions["questions"]) - 1)
         return questions["questions"][cid]["shape"], questions["questions"][cid]["name"], gen_wrong_answers('c', questions["questions"][cid]["name"])
-
-
-
-
-
-
-
