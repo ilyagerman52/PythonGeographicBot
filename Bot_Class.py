@@ -116,6 +116,7 @@ class Bot:
     def ask(self, chat_id, category='cC', ans_hidden=False):
         if chat_id not in self.chats: self.chats[chat_id] = Chat()
         question, answer, vars = generate_question(category, ans_hidden=ans_hidden)
+        question_image = question
         question = self.chats[chat_id].premessage + '\n\n' + question
         markup = types.InlineKeyboardMarkup(row_width=2)
         but_change = types.InlineKeyboardButton(text='Хочу сменить категорию вопросов',
@@ -133,7 +134,11 @@ class Bot:
         markup.add(but_change)
         markup.add(but_exit)
         if category in ['flg', 'shp']:
-            self.bot.send_photo(chat_id, photo=question, caption='Угадайте страну:', reply_markup=markup)
+            try:
+                self.bot.send_message(chat_id, self.chats[chat_id].premessage)
+                self.bot.send_photo(chat_id, photo=question_image, caption='Угадайте страну:', reply_markup=markup)
+            except:
+                self.bot.send_photo(chat_id, photo=question_image, caption='Угадайте страну:', reply_markup=markup)
         else:
             self.bot.send_message(chat_id, question, reply_markup=markup)
 
