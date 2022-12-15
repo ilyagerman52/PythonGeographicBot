@@ -5,6 +5,7 @@ from dataclasses import dataclass
 
 from question_generation import generate_question
 from MESSAGES import *
+from create_good_name import good_name
 
 
 @dataclass
@@ -106,13 +107,13 @@ class Bot:
 
     def check_answer(self, message):
         chat_id = message.chat.id
-        received_answer = message.text.strip()
+        received_answer = good_name(message.text.strip())
         if chat_id not in self.chats: self.chats[chat_id] = Chat()
         if self.chats[chat_id].waiting_answer is None:
             self.print_special_message(message.chat.id, 'unexpected')
         elif (isinstance(self.chats[chat_id].waiting_answer, str)
-              and received_answer == self.chats[chat_id].waiting_answer) or \
-                (received_answer in self.chats[chat_id].waiting_answer):
+              and received_answer == good_name(self.chats[chat_id].waiting_answer)) or \
+                (received_answer in good_name(self.chats[chat_id].waiting_answer)):
             self.chats[chat_id].premessage = 'Верно!'
             self.chats[chat_id].waiting_answer = None
             self.chats[chat_id].streak += 1
@@ -122,6 +123,7 @@ class Bot:
             self.chats[chat_id].waiting_answer = None
             self.chats[chat_id].streak = 0
             self.ask(message.chat.id, self.chats[chat_id].category)
+
 
     def start(self):
         self.bot.polling(none_stop=True, interval=0)
