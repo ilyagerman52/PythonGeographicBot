@@ -92,12 +92,12 @@ def generate_question(category, ans_hidden=True):
         with open("images.json") as f:
             questions = json.load(f)
         cid = random.randint(0, len(questions["questions"]) - 1)
-        return questions["questions"][cid]["flag"], questions["questions"][cid]["name"], gen_wrong_answers('c', cid)
+        return questions["questions"][cid]["flag"], questions["questions"][cid]["name"], gen_wrong_answers('c', questions["questions"][cid]["name"])
     elif category == "shp":
         with open("images.json") as f:
             questions = json.load(f)
         cid = random.randint(0, len(questions["questions"]) - 1)
-        return questions["questions"][cid]["shape"], questions["questions"][cid]["name"], gen_wrong_answers('c', cid)
+        return questions["questions"][cid]["shape"], questions["questions"][cid]["name"], gen_wrong_answers('c', questions["questions"][cid]["name"])
 
 
 
