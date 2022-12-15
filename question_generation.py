@@ -72,6 +72,18 @@ def generate_question(category):
             questions = json.load(f)
         cid = random.randint(0, len(questions["questions"]) - 1)
         return questions["questions"][cid]["question"], questions["questions"][cid]["answer"]
+    elif category == "flg":
+        with open("images.json") as f:
+            questions = json.load(f)
+        cid = random.randint(0, len(questions["questions"]) - 1)
+        print(questions["questions"][cid]["flag"], questions["questions"][cid]["name"])
+        return questions["questions"][cid]["flag"], questions["questions"][cid]["name"]
+    elif category == "shp":
+        with open("images.json") as f:
+            questions = json.load(f)
+        cid = random.randint(0, len(questions["questions"]) - 1)
+        print(questions["questions"][cid]["shape"], questions["questions"][cid]["name"])
+        return questions["questions"][cid]["shape"], questions["questions"][cid]["name"]
     elif category == "rnd": #random question
         cid = random.choice(["cC", "wthr", "tc", "cd", "rd"])
         return generate_question(cid)
