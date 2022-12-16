@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from question_generation import generate_question
 from MESSAGES import *
 from create_good_name import good_name
-import bd_functions
+import BD
 
 
 @dataclass
@@ -155,13 +155,13 @@ class Bot:
             self.chats[chat_id].premessage = 'Верно!'
             self.chats[chat_id].waiting_answer = None
             self.chats[chat_id].streak += 1
-            bd_functions.Update_streak(chat_id, 1)
+            BD.Update_streak(chat_id, 1)
             self.ask(message.chat.id, self.chats[chat_id].category, self.chats[chat_id].ans_hidden)
         else:
             self.chats[chat_id].premessage = 'Неверно! Правильный ответ: ' + self.chats[chat_id].waiting_answer
             self.chats[chat_id].waiting_answer = None
             self.chats[chat_id].streak = 0
-            bd_functions.Update_streak(chat_id, 0)
+            BD.Update_streak(chat_id, 0)
             self.ask(message.chat.id, self.chats[chat_id].category, self.chats[chat_id].ans_hidden)
 
     def start(self):
