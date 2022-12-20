@@ -61,20 +61,28 @@ def gen_wrong_answers(cat, true_ans):
 
 def generate_question(category, ans_hidden=True):
     if category == 'cC': # country -> Capital
-        cid = random.randint(0, len(cC.keys()) - 1)
-        c_ = c[cid]
-        C_ = cC[c_]
-        return 'Назовите столицу ' + c_ + '.', C_, gen_wrong_answers('C', C_)
+        conn = sqlite3.connect("geonames.bd")
+        cur = conn.cursor()
+        cur.execute("""SELECT *
+                    FROM countries
+                    ORDER BY RANDOM()
+                    LIMIT 1""")
+        temp = cur.fetchone()
+        return 'Назовите столицу ' + temp[1] + '.', temp[3], gen_wrong_answers('C', temp[3])
     elif category == 'wthr': # weather -> town
         tid = random.randint(0, len(t) - 1)
         t_ = t[tid]
         you_weather = weather_in_city(t_)
         return 'Угадайте город. Температура: ' + str(you_weather['temp']) + ', а на небе: ' + str(you_weather['sky']), t_, gen_wrong_answers('t', t_)
     elif category == 'tc': # town -> country
-        tid = random.randint(0, len(t) - 1)
-        t_ = t[tid]
-        c_ = tc[t_]
-        return 'В какой стране находится город ' + t_, c_, gen_wrong_answers('c', c_)
+        conn = sqlite3.connect("geonames.bd")
+        cur = conn.cursor()
+        cur.execute("""SELECT *
+                            FROM towns
+                            ORDER BY RANDOM()
+                            LIMIT 1""")
+        temp = cur.fetchone()
+        return 'В какой стране находится город ' + temp[1], temp[3], gen_wrong_answers('c', temp[3])
     elif category == "cd": # country <- description
         conn = sqlite3.connect("geonames.bd")
         cur = conn.cursor()
@@ -82,10 +90,6 @@ def generate_question(category, ans_hidden=True):
             FROM ege_17
             ORDER BY RANDOM()
             LIMIT 1""")
-        # with open("cd.json") as f:
-        #     questions = json.load(f)
-        # cid = random.randint(0, len(questions["questions"]) - 1)
-        # return questions["questions"][cid]["question"], questions["questions"][cid]["answer"], []
         return *cur.fetchone(), []
     elif category == "rd": # region <- description
         conn = sqlite3.connect("geonames.bd")
@@ -94,13 +98,9 @@ def generate_question(category, ans_hidden=True):
                     FROM ege_18
                     ORDER BY RANDOM()
                     LIMIT 1""")
-        # with open("rd.json") as f:
-        #     questions = json.load(f)
-        # cid = random.randint(0, len(questions["questions"]) - 1)
-        # return questions["questions"][cid]["question"], questions["questions"][cid]["answer"], []
         return *cur.fetchone(), []
     elif category == "rnd": #random question
-        cat = random.choice(["cC", "wthr", "tc", "cd", "rd"])
+        cat = random.choice(["cC", "wthr", "tc", "cd", "rd", "flg", "shp"])
         return generate_question(cat)
     elif category == "flg":
         with open("images.json") as f:
