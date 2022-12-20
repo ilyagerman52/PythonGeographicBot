@@ -7,14 +7,15 @@ from datetime import datetime
 
 from database_parser import *
 
-
 token_accu = 'gBj1vV4C8jprBzXRFLHpyAriTn7nvO3G'
+
 
 def geo_pos(city: str):
     geolocator = geocoders.Nominatim(user_agent="telebot")
     latitude = str(geolocator.geocode(city).latitude)
     longitude = str(geolocator.geocode(city).longitude)
     return latitude, longitude
+
 
 def code_location(latitude: str, longitude: str, token_accu: str):
     url_location_key = 'http://dataservice.accuweather.com/locations/v1/cities/geoposition/search?apikey=' \
@@ -23,6 +24,7 @@ def code_location(latitude: str, longitude: str, token_accu: str):
     json_data = json.loads(resp_loc.text)
     code = json_data['Key']
     return code
+
 
 def get_weather(code_loc: str, token_accu: str):
     url_weather = f'http://dataservice.accuweather.com/forecasts/v1/hourly/12hour/{code_loc}?' \
@@ -33,6 +35,7 @@ def get_weather(code_loc: str, token_accu: str):
     dict_weather['link'] = json_data[0]['MobileLink']
     weather = {'temp': json_data[0]['Temperature']['Value'], 'sky': json_data[0]['IconPhrase']}
     return weather
+
 
 def weather_in_city(city):
     latitude, longitude = geo_pos(city)
@@ -78,8 +81,9 @@ def gen_wrong_answers(cat, true_ans):
             count += 1
     return list(wrong_answers)
 
+
 def generate_question(category, ans_hidden=True):
-    if category == 'cC': # country -> Capital
+    if category == 'cC':  # country -> Capital
         conn = sqlite3.connect("geonames.db")
         cur = conn.cursor()
         cur.execute("""SELECT c_r, C_r
@@ -88,18 +92,19 @@ def generate_question(category, ans_hidden=True):
                     LIMIT 1""")
         temp = cur.fetchone()
         return 'Назовите столицу ' + temp[0] + '.', temp[1], gen_wrong_answers('C', temp[1])
-    elif category == 'wthr': # weather -> town
+    elif category == 'wthr':  # weather -> town
         conn = sqlite3.connect("geonames.db")
         cur = conn.cursor()
         cur.execute("""SELECT t_r
-                            FROM countries
+                            FROM towns
                             ORDER BY RANDOM()
                             LIMIT 1""")
         temp = cur.fetchone()
         t_ = temp[0]
         you_weather = weather_in_city(t_)
-        return 'Угадайте город. Температура: ' + str(you_weather['temp']) + ', а на небе: ' + str(you_weather['sky']), t_, gen_wrong_answers('t', t_)
-    elif category == 'tc': # town -> country
+        return 'Угадайте город. Температура: ' + str(you_weather['temp']) + ', а на небе: ' + str(
+            you_weather['sky']), t_, gen_wrong_answers('t', t_)
+    elif category == 'tc':  # town -> country
         conn = sqlite3.connect("geonames.db")
         cur = conn.cursor()
         cur.execute("""SELECT t_r, c_r
@@ -108,7 +113,7 @@ def generate_question(category, ans_hidden=True):
                             LIMIT 1""")
         temp = cur.fetchone()
         return 'В какой стране находится город ' + temp[0], temp[1], gen_wrong_answers('c', temp[1])
-    elif category == "cd": # country <- description
+    elif category == "cd":  # country <- description
         conn = sqlite3.connect("geonames.db")
         cur = conn.cursor()
         cur.execute("""SELECT *
@@ -116,7 +121,7 @@ def generate_question(category, ans_hidden=True):
             ORDER BY RANDOM()
             LIMIT 1""")
         return *cur.fetchone(), []
-    elif category == "rd": # region <- description
+    elif category == "rd":  # region <- description
         conn = sqlite3.connect("geonames.db")
         cur = conn.cursor()
         cur.execute("""SELECT *
@@ -124,7 +129,7 @@ def generate_question(category, ans_hidden=True):
                     ORDER BY RANDOM()
                     LIMIT 1""")
         return *cur.fetchone(), []
-    elif category == "rnd": #random question
+    elif category == "rnd":  # random question
         cat = random.choice(["cC", "wthr", "tc", "cd", "rd", "flg", "shp"])
         return generate_question(cat)
     elif category == "flg":

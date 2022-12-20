@@ -1,7 +1,7 @@
 from Bot_Class import Bot
 
 
-TOKEN = "5986823731:AAGCEnvbGZzYyKvG49PeRt5Caf5mhLTgaUs"
+TOKEN = "5986823731:AAHVMdWsWb_sUjBIbQz4j_1ja_mm41tNkHw"
 GeoBot = Bot(TOKEN)
 
 @GeoBot.bot.message_handler(commands=['start'])

@@ -31,7 +31,7 @@ brd picture
 db.commit()
 
 def get_towns():
-    for page in range(1):
+    for page in range(7):
         url = 'https://www.geonames.org/advanced-search.html?q=&featureClass=P&startRow=' + str(page * 50)
         r = requests.get(url)
         r = r.content.decode('utf-8')
@@ -97,6 +97,7 @@ def get_brd():
 
 
 # get_countries()
+# get_towns()
 # cur.execute('select * from countries')
 # res = cur.fetchall()
 # print(*res, sep='\n')
