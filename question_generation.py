@@ -47,8 +47,8 @@ def generate_question(category):
                         FROM countries
                         ORDER BY RANDOM()
                         LIMIT 1""")
-        temp = cur.fetchone()
-        return 'Назовите столицу ' + temp[0] + '.', temp[1], gen_wrong_answers('C', temp[1])
+        c_r, C_r = cur.fetchone()
+        return 'Назовите столицу ' + c_r + '.', C_r, gen_wrong_answers('C', C_r)
     elif category == 'wthr':  # weather -> town
         conn = sqlite3.connect("geonames.db")
         cur = conn.cursor()
@@ -56,8 +56,7 @@ def generate_question(category):
                         FROM towns
                         ORDER BY RANDOM()
                         LIMIT 1""")
-        temp = cur.fetchone()
-        t_ = temp[0]
+        t_ = cur.fetchone()[0]
         you_weather = weather_in_city(t_)
         return 'Угадайте город. Температура: ' + str(you_weather['temp']) + ', а на небе: ' + str(
             you_weather['sky']), t_, gen_wrong_answers('t', t_)
@@ -96,8 +95,8 @@ def generate_question(category):
                         FROM countries
                         ORDER BY RANDOM()
                         LIMIT 1""")
-        temp = cur.fetchone()
-        return temp[1], temp[0], gen_wrong_answers('c', temp[0])
+        c_r, flg = cur.fetchone()
+        return flg, c_r, gen_wrong_answers('c', c_r)
     elif category == "brd":
         conn = sqlite3.connect("geonames.db")
         cur = conn.cursor()
@@ -105,5 +104,5 @@ def generate_question(category):
                         FROM countries
                         ORDER BY RANDOM()
                         LIMIT 1""")
-        temp = cur.fetchone()
-        return temp[1], temp[0], gen_wrong_answers('c', temp[0])
+        c_r, brd = cur.fetchone()
+        return brd, c_r, gen_wrong_answers('c', c_r)
