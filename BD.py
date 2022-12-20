@@ -47,3 +47,14 @@ def Get_Username(given_id):
     for value in cursor.execute("SELECT * FROM login_id"):
         if value[0] == given_id:
             return value[1]
+
+def Leader():
+    answer = list()
+    i = 0
+    for value in cursor.execute("SELECT * FROM login_id ORDER BY streak DESC"):
+        connect.commit()
+        i += 1
+        if i > 5:
+            break
+        answer.append(value)
+    return answer

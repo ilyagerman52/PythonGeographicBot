@@ -25,6 +25,15 @@ def profile_getter(message):
 def help(message):
     GeoBot.print_special_message(message.chat.id, 'help')
 
+@GeoBot.bot.message_handler(commands=['top'])
+def top(message):
+    leader = BD.Leader()
+    s = str('TOP:' + '\n')
+    for v in leader:
+        s += v[1] + ' ' + str(v[2]) + '\n'
+    GeoBot.bot.send_message(message.chat.id, s)
+
+
 @GeoBot.bot.message_handler(content_types=['text'])
 def answer(message):
     if message.text == '/change_username':
