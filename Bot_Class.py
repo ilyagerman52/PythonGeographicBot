@@ -89,9 +89,11 @@ class Bot:
                 self.chats[chat_id].premessage = 'Варианты ответа включены'
             self.print_special_message(chat_id, 'choose_category')
         elif call.data == 'correct_ans':
+            BD.Update_streak(chat_id, 1)
             self.chats[chat_id].premessage = 'Верно!'
             self.ask(call.message.chat.id, self.chats[chat_id].category, self.chats[chat_id].ans_hidden)
         elif call.data == 'wrong_ans':
+            BD.Update_streak(chat_id, 0)
             self.chats[chat_id].premessage = 'Неверно! Правильный ответ: ' + self.chats[chat_id].waiting_answer
             self.ask(call.message.chat.id, self.chats[chat_id].category, self.chats[chat_id].ans_hidden)
         elif call.data in self.question_types:
@@ -155,13 +157,11 @@ class Bot:
             self.chats[chat_id].premessage = 'Верно!'
             self.chats[chat_id].waiting_answer = None
             self.chats[chat_id].streak += 1
-            BD.Update_streak(chat_id, 1)
             self.ask(message.chat.id, self.chats[chat_id].category, self.chats[chat_id].ans_hidden)
         else:
             self.chats[chat_id].premessage = 'Неверно! Правильный ответ: ' + self.chats[chat_id].waiting_answer
             self.chats[chat_id].waiting_answer = None
             self.chats[chat_id].streak = 0
-            BD.Update_streak(chat_id, 0)
             self.ask(message.chat.id, self.chats[chat_id].category, self.chats[chat_id].ans_hidden)
 
     def start(self):

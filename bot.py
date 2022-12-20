@@ -3,7 +3,7 @@ import BD
 from Bot_Class import Bot
 
 
-TOKEN = "5986823731:AAGCEnvbGZzYyKvG49PeRt5Caf5mhLTgaUs"
+TOKEN = "5881215579:AAGTHw_NA5oKwc2N0aWlDzsjtgGsizjxl5s"
 GeoBot = Bot(TOKEN)
 
 @GeoBot.bot.message_handler(commands=['start'])
@@ -27,7 +27,7 @@ def help(message):
 
 @GeoBot.bot.message_handler(content_types=['text'])
 def answer(message):
-    if message.text == '/chu':
+    if message.text == '/change_username':
         GeoBot.bot.send_message(message.chat.id, 'Введите новый Username')
         GeoBot.bot.register_next_step_handler(message, UU)
     else:
