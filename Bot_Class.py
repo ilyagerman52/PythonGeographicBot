@@ -28,14 +28,14 @@ class Bot:
     rd - region (from Russia) description
     wthr - weather
     flg - flag
-    shp - shape
+    brd - shape (borders)
     """
 
     def __init__(self, token):
         self.bot = telebot.TeleBot(token)
         self.bot_username = self.bot.user.username
         self.bot_id = self.bot.user.id
-        self.question_types = ['cC', 'tc', 'wthr', 'cd', 'rd', 'flg', 'shp', 'rnd']
+        self.question_types = ['cC', 'tc', 'wthr', 'cd', 'rd', 'flg', 'brd', 'rnd']
         self.chats = dict()
 
     def print_special_message(self, chat_id, t='unexpected'):
@@ -62,10 +62,10 @@ class Bot:
             but_cd = types.InlineKeyboardButton(text='Угадать страну по описанию из ЕГЭ', callback_data='cd')
             but_rd = types.InlineKeyboardButton(text='Угадать регион России по описанию из ЕГЭ', callback_data='rd')
             but_flg = types.InlineKeyboardButton(text='Угадать страну по флагу', callback_data='flg')
-            but_shp = types.InlineKeyboardButton(text='Угадать страну по очертаниям', callback_data='shp')
+            but_brd = types.InlineKeyboardButton(text='Угадать страну по очертаниям', callback_data='brd')
             but_rnd = types.InlineKeyboardButton(text='Случайные вопросы', callback_data='rnd')
             but_vars = types.InlineKeyboardButton(text='Добавить/убрать варианты ответа', callback_data='change_vars')
-            markup.add(but_cC, but_tc, but_wthr, but_cd, but_rd, but_flg, but_shp, but_rnd, but_vars)
+            markup.add(but_cC, but_tc, but_wthr, but_cd, but_rd, but_flg, but_brd, but_rnd, but_vars)
             self.bot.send_message(chat_id, message_text, reply_markup=markup)
 
     def reply_inline_call(self, call):
@@ -131,7 +131,7 @@ class Bot:
         self.chats[chat_id].waiting_answer = answer
         markup.add(but_change)
         markup.add(but_exit)
-        if category in ['flg', 'shp']:
+        if category in ['flg', 'brd']:
             self.bot.send_photo(chat_id, photo=question_image, caption=self.chats[chat_id].premessage + 'Угадайте страну:', reply_markup=markup)
         else:
             self.bot.send_message(chat_id, question, reply_markup=markup)

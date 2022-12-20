@@ -1,6 +1,8 @@
 from translate import Translator
 import re
 from geopy import geocoders
+import requests
+import json
 
 
 def translate(en_str):

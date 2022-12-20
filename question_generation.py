@@ -97,7 +97,7 @@ def generate_question(category):
                         LIMIT 1""")
         return *cur.fetchone(), []
     elif category == "rnd":  # random question
-        cat = random.choice(["cC", "wthr", "tc", "cd", "rd", "flg", "shp"])
+        cat = random.choice(["cC", "wthr", "tc", "cd", "rd", "flg", "brd"])
         return generate_question(cat)
     elif category == "flg":
         conn = sqlite3.connect("geonames.db")
@@ -108,7 +108,7 @@ def generate_question(category):
                         LIMIT 1""")
         temp = cur.fetchone()
         return temp[1], temp[0], gen_wrong_answers('c', temp[0])
-    elif category == "shp":
+    elif category == "brd":
         conn = sqlite3.connect("geonames.db")
         cur = conn.cursor()
         cur.execute("""SELECT c_r, brd
