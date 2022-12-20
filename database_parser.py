@@ -1,15 +1,38 @@
 import requests
 from bs4 import BeautifulSoup
 import re
+from translate import Translator
+import sqlite3
+import json
 
 
-def get_tpcC():
-    t = []
-    tp = dict()
-    tc = dict()
-    cC = dict()
-    c = []
-    for page in range(30):
+translator = Translator(to_lang='Russian')
+db_file = 'geonames.db'
+db = sqlite3.connect(db_file)
+cur = db.cursor()
+cur.execute("""create table if not exists towns(
+t text,
+t_r text,
+c text,
+c_r text,
+p integer
+)""")
+db.commit()
+
+cur.execute("""create table if not exists countries(
+c text,
+c_r text,
+Cap text,
+Cap_r text,
+a integer,
+p integer,
+flg picture,
+brd picture
+)""")
+db.commit()
+
+def get_towns():
+    for page in range(1):
         url = 'https://www.geonames.org/advanced-search.html?q=&featureClass=P&startRow=' + str(page * 50)
         r = requests.get(url)
         r = r.content.decode('utf-8')
@@ -24,12 +47,59 @@ def get_tpcC():
                         len(re.findall(r'\w', t_[:1])) != 0 and \
                         len(re.findall(r'[a-z][A-Z]', t_)) == 0 and \
                         'Ukraine' not in c_:  # some territories are disputed, so it's easiest way to solve this
-                    t.append(t_)
-                    tp[t_] = p_
-                    tc[t_] = c_
-                    if 'capital of a political entity' in blocks[3].text:
-                        cC[c_] = t_
-                        c.append(c_)
+                    row = (str(t_), str(translator.translate(t_)), c_, translator.translate(c_), p_)
+                    cur.execute('insert into towns values(?, ?, ?, ?, ?);', row)
+                    db.commit()
             except Exception:
                 pass
-    return t, tp, tc, cC, c
+    print('parsed')
+    return
+
+
+def get_countries():
+    url = 'https://www.geonames.org/countries/'
+    r = requests.get(url)
+    r = r.content.decode('utf-8')
+    soup = BeautifulSoup(r, 'html.parser')
+    for link in soup.find_all('tr'):
+        blocks = link.find_all('td')
+        if len(blocks) == 9:
+            c = blocks[4].text
+            C = blocks[5].text
+            a = blocks[6].text
+            p = blocks[7].text.replace(',', '')
+            cont = blocks[8].text
+            if C != '':
+                try:
+                    row = (c, translator.translate(c), C, translator.translate(C), a, p, 'flag', 'brd')
+                    cur.execute('insert into countries values(?, ?, ?, ?, ?, ?, ?, ?);', row)
+                    db.commit()
+                except:
+                    print(c, C, a, p)
+    get_brd()
+    print('parsed')
+    return
+
+
+def get_brd():
+    link = 'https://raw.githubusercontent.com/daniinco/countries/main/images.json'
+    r = requests.get(link).content.decode('utf-8')
+    with open('images.json', 'w') as f:
+        f.write(r)
+    with open('images.json', 'r') as f:
+        countries = json.load(f)
+        countries = countries['countries']
+        for row in countries:
+            name = row['name']
+            flag = row['flag']
+            brd = row['shape']
+            print(name, flag, brd)
+            cur.execute(f'update countries set flg="{flag}", brd="{brd}" where c="{name}"')
+
+
+# get_brd()
+#
+# get_countries()
+# cur.execute('select * from countries')
+# res = cur.fetchall()
+# print(*res, sep='\n')
