@@ -6,6 +6,7 @@ from dataclasses import dataclass
 
 from question_generation import generate_question
 from utils import good_name
+import BD
 
 @dataclass
 class Chat:
@@ -41,6 +42,7 @@ class Bot:
         if t == 'unexpected':
             self.bot.send_message(chat_id, 'Я тебя не понял. Справку можно вызвать командой /help .')
         elif t == 'hello':
+            BD.add_user(chat_id)
             self.chats[chat_id] = Chat()
             markup = types.InlineKeyboardMarkup(row_width=1)
             but_y = types.InlineKeyboardButton(text="Да", callback_data='yes')
@@ -66,6 +68,15 @@ class Bot:
             but_vars = types.InlineKeyboardButton(text='Добавить/убрать варианты ответа', callback_data='change_vars')
             markup.add(but_cC, but_tc, but_wthr, but_cd, but_rd, but_flg, but_brd, but_rnd, but_vars)
             self.bot.send_message(chat_id, message_text, reply_markup=markup)
+        elif t == 'profile':
+            name, streak = BD.get_stats(chat_id)
+            self.bot.send_message(chat_id, f'Name: {name} \nStreak: {streak}')
+        elif t == 'top':
+            leader = BD.leader()
+            s = str('TOP:' + '\n')
+            for user in leader:
+                s += user[0] + ' ' + str(user[1]) + '\n'
+            self.bot.send_message(chat_id, s)
 
     def reply_inline_call(self, call):
         chat_id = call.message.chat.id
@@ -81,14 +92,16 @@ class Bot:
             self.chats[chat_id].ans_hidden = not self.chats[chat_id].ans_hidden
             self.bot.edit_message_reply_markup(call.message.chat.id, call.message.id, reply_markup=None)
             if self.chats[chat_id].ans_hidden:
-                self.bot.edit_message_text('Варианты ответа выключены')
+                self.bot.edit_message_text('Варианты ответа выключены', call.message.chat.id, call.message.id)
             else:
-                self.bot.edit_message_text('Варианты ответа включены')
+                self.bot.edit_message_text('Варианты ответа включены', call.message.chat.id, call.message.id)
             self.print_special_message(chat_id, 'choose_category')
         elif call.data == 'correct_ans':
+            BD.update_streak(chat_id, 1)
             self.chats[chat_id].premessage = 'Верно!'
             self.ask(call.message.chat.id, self.chats[chat_id].category, self.chats[chat_id].ans_hidden)
         elif call.data == 'wrong_ans':
+            BD.update_streak(chat_id, 0)
             self.chats[chat_id].premessage = 'Неверно! Правильный ответ: ' + self.chats[chat_id].waiting_answer
             self.ask(call.message.chat.id, self.chats[chat_id].category, self.chats[chat_id].ans_hidden)
         elif call.data in self.question_types:
@@ -145,11 +158,13 @@ class Bot:
         elif (isinstance(self.chats[chat_id].waiting_answer, str)
               and received_answer == good_name(self.chats[chat_id].waiting_answer)) or \
                 (received_answer in good_name(self.chats[chat_id].waiting_answer).split('|')):
+            BD.update_streak(chat_id, 1)
             self.chats[chat_id].premessage = 'Верно!'
             self.chats[chat_id].waiting_answer = None
             self.chats[chat_id].streak += 1
             self.ask(message.chat.id, self.chats[chat_id].category, self.chats[chat_id].ans_hidden)
         else:
+            BD.update_streak(chat_id, 0)
             self.chats[chat_id].premessage = 'Неверно! Правильный ответ: ' + self.chats[chat_id].waiting_answer
             self.chats[chat_id].waiting_answer = None
             self.chats[chat_id].streak = 0
