@@ -155,11 +155,13 @@ class Bot:
               and received_answer == good_name(self.chats[chat_id].waiting_answer)) or \
                 (received_answer in good_name(self.chats[chat_id].waiting_answer).split('|')):
             self.chats[chat_id].premessage = 'Верно!'
+            BD.Update_streak(chat_id, 1)
             self.chats[chat_id].waiting_answer = None
             self.chats[chat_id].streak += 1
             self.ask(message.chat.id, self.chats[chat_id].category, self.chats[chat_id].ans_hidden)
         else:
             self.chats[chat_id].premessage = 'Неверно! Правильный ответ: ' + self.chats[chat_id].waiting_answer
+            BD.Update_streak(chat_id, 0)
             self.chats[chat_id].waiting_answer = None
             self.chats[chat_id].streak = 0
             self.ask(message.chat.id, self.chats[chat_id].category, self.chats[chat_id].ans_hidden)
