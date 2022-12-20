@@ -1,12 +1,11 @@
 import requests
 from bs4 import BeautifulSoup
 import re
-from translate import Translator
+from utils import translate
 import sqlite3
 import json
 
 
-translator = Translator(to_lang='Russian')
 db_file = 'geonames.db'
 db = sqlite3.connect(db_file)
 cur = db.cursor()
@@ -47,7 +46,7 @@ def get_towns():
                         len(re.findall(r'\w', t_[:1])) != 0 and \
                         len(re.findall(r'[a-z][A-Z]', t_)) == 0 and \
                         'Ukraine' not in c_:  # some territories are disputed, so it's easiest way to solve this
-                    row = (str(t_), str(translator.translate(t_)), c_, translator.translate(c_), p_)
+                    row = (str(t_), str(translate(t_)), c_, translate(c_), p_)
                     cur.execute('insert into towns values(?, ?, ?, ?, ?);', row)
                     db.commit()
             except Exception:
@@ -71,7 +70,7 @@ def get_countries():
             cont = blocks[8].text
             if C != '':
                 try:
-                    row = (c, translator.translate(c), C, translator.translate(C), a, p, 'flag', 'brd')
+                    row = (c, translate(c), C, translate(C), a, p, 'flag', 'brd')
                     cur.execute('insert into countries values(?, ?, ?, ?, ?, ?, ?, ?);', row)
                     db.commit()
                 except:
@@ -97,8 +96,6 @@ def get_brd():
             cur.execute(f'update countries set flg="{flag}", brd="{brd}" where c="{name}"')
 
 
-# get_brd()
-#
 # get_countries()
 # cur.execute('select * from countries')
 # res = cur.fetchall()
