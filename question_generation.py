@@ -63,26 +63,32 @@ def generate_question(category, ans_hidden=True):
     if category == 'cC': # country -> Capital
         conn = sqlite3.connect("geonames.bd")
         cur = conn.cursor()
-        cur.execute("""SELECT *
+        cur.execute("""SELECT c_r, C_r
                     FROM countries
                     ORDER BY RANDOM()
                     LIMIT 1""")
         temp = cur.fetchone()
-        return 'Назовите столицу ' + temp[1] + '.', temp[3], gen_wrong_answers('C', temp[3])
+        return 'Назовите столицу ' + temp[0] + '.', temp[1], gen_wrong_answers('C', temp[1])
     elif category == 'wthr': # weather -> town
-        tid = random.randint(0, len(t) - 1)
-        t_ = t[tid]
+        conn = sqlite3.connect("geonames.bd")
+        cur = conn.cursor()
+        cur.execute("""SELECT t_r
+                            FROM countries
+                            ORDER BY RANDOM()
+                            LIMIT 1""")
+        temp = cur.fetchone()
+        t_ = temp[0]
         you_weather = weather_in_city(t_)
         return 'Угадайте город. Температура: ' + str(you_weather['temp']) + ', а на небе: ' + str(you_weather['sky']), t_, gen_wrong_answers('t', t_)
     elif category == 'tc': # town -> country
         conn = sqlite3.connect("geonames.bd")
         cur = conn.cursor()
-        cur.execute("""SELECT *
+        cur.execute("""SELECT t_r, c_r
                             FROM towns
                             ORDER BY RANDOM()
                             LIMIT 1""")
         temp = cur.fetchone()
-        return 'В какой стране находится город ' + temp[1], temp[3], gen_wrong_answers('c', temp[3])
+        return 'В какой стране находится город ' + temp[0], temp[1], gen_wrong_answers('c', temp[1])
     elif category == "cd": # country <- description
         conn = sqlite3.connect("geonames.bd")
         cur = conn.cursor()
@@ -103,12 +109,20 @@ def generate_question(category, ans_hidden=True):
         cat = random.choice(["cC", "wthr", "tc", "cd", "rd", "flg", "shp"])
         return generate_question(cat)
     elif category == "flg":
-        with open("images.json") as f:
-            questions = json.load(f)
-        cid = random.randint(0, len(questions["questions"]) - 1)
-        return questions["questions"][cid]["flag"], questions["questions"][cid]["name"], gen_wrong_answers('c', questions["questions"][cid]["name"])
+        conn = sqlite3.connect("geonames.bd")
+        cur = conn.cursor()
+        cur.execute("""SELECT c_r, flg
+                                    FROM towns
+                                    ORDER BY RANDOM()
+                                    LIMIT 1""")
+        temp = cur.fetchone()
+        return temp[1], temp[0], gen_wrong_answers('c', temp[0])
     elif category == "shp":
-        with open("images.json") as f:
-            questions = json.load(f)
-        cid = random.randint(0, len(questions["questions"]) - 1)
-        return questions["questions"][cid]["shape"], questions["questions"][cid]["name"], gen_wrong_answers('c', questions["questions"][cid]["name"])
+        conn = sqlite3.connect("geonames.bd")
+        cur = conn.cursor()
+        cur.execute("""SELECT c_r, brd
+                                            FROM towns
+                                            ORDER BY RANDOM()
+                                            LIMIT 1""")
+        temp = cur.fetchone()
+        return temp[1], temp[0], gen_wrong_answers('c', temp[0])
