@@ -2,6 +2,7 @@ import random
 import requests
 import json
 from geopy import geocoders
+import sqlite3
 from datetime import datetime
 
 from database_parser import *
@@ -75,15 +76,29 @@ def generate_question(category, ans_hidden=True):
         c_ = tc[t_]
         return 'В какой стране находится город ' + t_, c_, gen_wrong_answers('c', c_)
     elif category == "cd": # country <- description
-        with open("cd.json") as f:
-            questions = json.load(f)
-        cid = random.randint(0, len(questions["questions"]) - 1)
-        return questions["questions"][cid]["question"], questions["questions"][cid]["answer"], []
+        conn = sqlite3.connect("geonames.bd")
+        cur = conn.cursor()
+        cur.execute("""SELECT *
+            FROM ege_17
+            ORDER BY RANDOM()
+            LIMIT 1""")
+        # with open("cd.json") as f:
+        #     questions = json.load(f)
+        # cid = random.randint(0, len(questions["questions"]) - 1)
+        # return questions["questions"][cid]["question"], questions["questions"][cid]["answer"], []
+        return *cur.fetchone(), []
     elif category == "rd": # region <- description
-        with open("rd.json") as f:
-            questions = json.load(f)
-        cid = random.randint(0, len(questions["questions"]) - 1)
-        return questions["questions"][cid]["question"], questions["questions"][cid]["answer"], []
+        conn = sqlite3.connect("geonames.bd")
+        cur = conn.cursor()
+        cur.execute("""SELECT *
+                    FROM ege_18
+                    ORDER BY RANDOM()
+                    LIMIT 1""")
+        # with open("rd.json") as f:
+        #     questions = json.load(f)
+        # cid = random.randint(0, len(questions["questions"]) - 1)
+        # return questions["questions"][cid]["question"], questions["questions"][cid]["answer"], []
+        return *cur.fetchone(), []
     elif category == "rnd": #random question
         cat = random.choice(["cC", "wthr", "tc", "cd", "rd"])
         return generate_question(cat)
