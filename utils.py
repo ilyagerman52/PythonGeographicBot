@@ -50,3 +50,6 @@ def weather_in_city(city):
     code_loc = code_location(latitude, longitude, token_accu)
     you_weather = get_weather(code_loc, token_accu)
     return you_weather
+
+def good_name(string):
+    return string.lower().replace('-', ' ').replace('`', ' ').replace('\'', ' ')

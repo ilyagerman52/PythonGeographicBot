@@ -5,8 +5,7 @@ from telebot import types
 from dataclasses import dataclass
 
 from question_generation import generate_question
-from create_good_name import good_name
-
+from utils import good_name
 
 @dataclass
 class Chat:
