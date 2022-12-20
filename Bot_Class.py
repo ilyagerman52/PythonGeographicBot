@@ -83,9 +83,9 @@ class Bot:
             self.chats[chat_id].ans_hidden = not self.chats[chat_id].ans_hidden
             self.bot.edit_message_reply_markup(call.message.chat.id, call.message.id, reply_markup=None)
             if self.chats[chat_id].ans_hidden:
-                self.chats[chat_id].premessage = 'Варианты ответа выключены'
+                self.bot.edit_message_text('Варианты ответа выключены')
             else:
-                self.chats[chat_id].premessage = 'Варианты ответа включены'
+                self.bot.edit_message_text('Варианты ответа включены')
             self.print_special_message(chat_id, 'choose_category')
         elif call.data == 'correct_ans':
             self.chats[chat_id].premessage = 'Верно!'
@@ -114,7 +114,7 @@ class Bot:
     def ask(self, chat_id, category='cC', ans_hidden=False):
         if category is None: category = 'cC'
         if chat_id not in self.chats: self.chats[chat_id] = Chat()
-        question, answer, vars = generate_question(category, ans_hidden=ans_hidden)
+        question, answer, vars = generate_question(category)
         question_image = question
         question = self.chats[chat_id].premessage + '\n\n' + question
         markup = types.InlineKeyboardMarkup(row_width=2)
@@ -133,11 +133,7 @@ class Bot:
         markup.add(but_change)
         markup.add(but_exit)
         if category in ['flg', 'shp']:
-            try:
-                self.bot.send_message(chat_id, self.chats[chat_id].premessage)
-                self.bot.send_photo(chat_id, photo=question_image, caption='Угадайте страну:', reply_markup=markup)
-            except:
-                self.bot.send_photo(chat_id, photo=question_image, caption='Угадайте страну:', reply_markup=markup)
+            self.bot.send_photo(chat_id, photo=question_image, caption=self.chats[chat_id].premessage + 'Угадайте страну:', reply_markup=markup)
         else:
             self.bot.send_message(chat_id, question, reply_markup=markup)
 
