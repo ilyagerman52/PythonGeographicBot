@@ -4,16 +4,6 @@ from utils import *
 from database_parser import *
 
 
-token_accu = 'gBj1vV4C8jprBzXRFLHpyAriTn7nvO3G'
-
-
-def weather_in_city(city):
-    latitude, longitude = geo_pos(city)
-    code_loc = code_location(latitude, longitude, token_accu)
-    you_weather = get_weather(code_loc, token_accu)
-    return you_weather
-
-
 def gen_wrong_answers(cat, true_ans):
     wrong_answers = set()
     count = 0

@@ -4,6 +4,8 @@ from geopy import geocoders
 import requests
 import json
 
+token_accu = 'gBj1vV4C8jprBzXRFLHpyAriTn7nvO3G'
+
 
 def translate(en_str):
     translator = Translator(to_lang='Russian')
@@ -14,6 +16,7 @@ def translate(en_str):
         print(en_str, ru_str)
         return
     return ru_str
+
 
 def geo_pos(city: str):
     geolocator = geocoders.Nominatim(user_agent="telebot")
@@ -40,3 +43,10 @@ def get_weather(code_loc: str, token_accu: str):
     dict_weather['link'] = json_data[0]['MobileLink']
     weather = {'temp': json_data[0]['Temperature']['Value'], 'sky': json_data[0]['IconPhrase']}
     return weather
+
+
+def weather_in_city(city):
+    latitude, longitude = geo_pos(city)
+    code_loc = code_location(latitude, longitude, token_accu)
+    you_weather = get_weather(code_loc, token_accu)
+    return you_weather
