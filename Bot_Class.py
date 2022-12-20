@@ -5,7 +5,6 @@ from telebot import types
 from dataclasses import dataclass
 
 from question_generation import generate_question
-from MESSAGES import *
 from create_good_name import good_name
 
 
@@ -41,14 +40,14 @@ class Bot:
 
     def print_special_message(self, chat_id, t='unexpected'):
         if t == 'unexpected':
-            self.bot.send_message(chat_id, UNEXPEXTED)
+            self.bot.send_message(chat_id, 'Я тебя не понял. Справку можно вызвать командой /help .')
         elif t == 'hello':
             self.chats[chat_id] = Chat()
             markup = types.InlineKeyboardMarkup(row_width=1)
             but_y = types.InlineKeyboardButton(text="Да", callback_data='yes')
             but_n = types.InlineKeyboardButton(text="Посмотреть справку", callback_data='help')
             markup.add(but_y, but_n)
-            self.bot.send_message(chat_id, HELLO_MESSAGE, reply_markup=markup)
+            self.bot.send_message(chat_id, 'Привет, неудачник! Готов отвечать на вопросы?', reply_markup=markup)
         elif t == 'help':
             markup = types.InlineKeyboardMarkup()
             but_start = types.InlineKeyboardButton(text='Начать', callback_data='change_category')
