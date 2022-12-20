@@ -33,7 +33,7 @@ def gen_wrong_answers(cat, true_ans):
                         ORDER BY RANDOM()
                         LIMIT 1""")
             new_ans = cur.fetchone()[0]
-        if len(new_ans) > 2 and new_ans != true_ans and new_ans not in wrong_answers:
+        if new_ans is not None and len(new_ans) > 2 and new_ans != true_ans and new_ans not in wrong_answers:
             wrong_answers.add(new_ans)
             count += 1
     return list(wrong_answers)
