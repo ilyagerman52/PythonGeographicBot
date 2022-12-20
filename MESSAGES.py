@@ -1,5 +1,13 @@
 HELP_MESSAGE = '''
-HELP MESSAGE
+СПРАВКА:
+/start - наверное вы ее уже нажали
+/profile - узнать username и streak
+/top - узнать топ результатов 
+/change_username - изменить username (изначально username = user_id)
+
+Бот создан для расширения кругазора в области базовой географии и подготовки к экзаменам 
+
+Бот сделан при поддержке Фонда Кино и GeoGuesser
 '''
 
 UNEXPEXTED = '''
