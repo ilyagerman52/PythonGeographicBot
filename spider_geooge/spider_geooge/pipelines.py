@@ -6,7 +6,7 @@ class SpiderGeoogePipeline:
     def open_spider(self, spider):
         print("еcли парсим 17ый номер введи 1, если 18ый что угодно другое")
         self.stat = input()
-        self.conn = sqlite3.connect(r"../geonames.bd")
+        self.conn = sqlite3.connect(r"../geonames.db")
         self.cur = self.conn.cursor()
         self.cur.execute("""CREATE TABLE IF NOT EXISTS ege_17(
             question TEXT,
