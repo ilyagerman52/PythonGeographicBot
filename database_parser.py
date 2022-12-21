@@ -46,12 +46,11 @@ def get_towns():
                         len(re.findall(r'\w', t_[:1])) != 0 and \
                         len(re.findall(r'[a-z][A-Z]', t_)) == 0 and \
                         'Ukraine' not in c_:  # some territories are disputed, so it's easiest way to solve this
-                    row = (str(t_), str(translate(t_)), c_, translate(c_), p_)
+                    row = (t_, translate(t_), c_, translate(c_), p_)
                     cur.execute('insert into towns values(?, ?, ?, ?, ?);', row)
                     db.commit()
-            except Exception:
-                pass
-    print('parsed')
+            except Exception as e:
+                print("{!s}\n{!s}".format(type(e), str(e)))
     return
 
 
@@ -60,8 +59,8 @@ def get_countries():
     r = requests.get(url)
     r = r.content.decode('utf-8')
     soup = BeautifulSoup(r, 'html.parser')
-    for link in soup.find_all('tr'):
-        blocks = link.find_all('td')
+    for table in soup.find_all('tr'):
+        blocks = table.find_all('td')
         if len(blocks) == 9:
             c = blocks[4].text
             C = blocks[5].text
@@ -76,7 +75,6 @@ def get_countries():
                 except:
                     print(c, C, a, p)
     get_brd()
-    print('parsed')
     return
 
 
@@ -92,12 +90,11 @@ def get_brd():
             name = row['name']
             flag = row['flag']
             brd = row['shape']
-            print(name, flag, brd)
             cur.execute(f'update countries set flg="{flag}", brd="{brd}" where c="{name}"')
 
 
 # get_countries()
 # get_towns()
-# cur.execute('select * from countries')
+# cur.execute('select * from towns')
 # res = cur.fetchall()
 # print(*res, sep='\n')

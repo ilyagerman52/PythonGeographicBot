@@ -1,4 +1,4 @@
-from translate import Translator
+import translators
 import re
 from geopy import geocoders
 import requests
@@ -8,13 +8,13 @@ token_accu = 'gBj1vV4C8jprBzXRFLHpyAriTn7nvO3G'
 
 
 def translate(en_str):
-    translator = Translator(to_lang='Russian')
-    ru_str = translator.translate(en_str)
+    ru_str = translators.translate_text(en_str, 'yandex', 'auto', 'ru')
     if ru_str[:3] == 'г. ':
         ru_str = ru_str[3:]
     if len(re.findall(r"[а-яA-Я-'.’ ]", ru_str)) != len(ru_str):
-        print(en_str, ru_str)
-        return
+        print('error')
+        return None
+    ru_str.replace('Город', '').strip()
     return ru_str
 
 
