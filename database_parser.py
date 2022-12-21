@@ -1,9 +1,10 @@
 import requests
 from bs4 import BeautifulSoup
 import re
-from utils import translate
 import sqlite3
 import json
+
+from utils import translate
 
 
 db_file = 'geonames.db'

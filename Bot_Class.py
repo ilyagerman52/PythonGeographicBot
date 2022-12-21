@@ -1,5 +1,4 @@
 import random
-import time
 import telebot
 from telebot import types
 from dataclasses import dataclass
@@ -119,7 +118,6 @@ class Bot:
             self.chats[chat_id].premessage = ''
             self.chats[chat_id].waiting_answer = None
             self.chats[chat_id].category = None
-            time.sleep(1)
             self.ask(chat_id, self.chats[chat_id].category, self.chats[chat_id].ans_hidden)
 
     def ask(self, chat_id, category='cC', ans_hidden=False):
