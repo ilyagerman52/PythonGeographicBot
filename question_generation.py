@@ -1,7 +1,7 @@
 import random
+import sqlite3
 
 from utils import weather_in_city
-from database_parser import *
 
 
 def gen_wrong_answers(cat, true_ans):
