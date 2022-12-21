@@ -41,8 +41,8 @@ def generate_question(category):
     if category == 'cC':  # country -> Capital
         cur.execute("""SELECT c_r, Cap_r
                         FROM countries
-                        where not c_r=None
-                        not Cap_=None
+                        where not c_r = "None" and 
+                        not Cap_r = "None"
                         ORDER BY RANDOM()
                         LIMIT 1""")
         c_r, C_r = cur.fetchone()
@@ -50,7 +50,7 @@ def generate_question(category):
     elif category == 'wthr':  # weather -> town
         cur.execute("""SELECT t_r
                         FROM towns
-                        where not t_r=None
+                        where not t_r="None"
                         ORDER BY RANDOM()
                         LIMIT 1""")
         t_ = cur.fetchone()[0]
@@ -60,8 +60,8 @@ def generate_question(category):
     elif category == 'tc':  # town -> country
         cur.execute("""SELECT t_r, c_r
                         FROM towns
-                        where not t_r=None
-                        not c_r=None 
+                        where not t_r="None" and
+                        not c_r="None" 
                         ORDER BY RANDOM()
                         LIMIT 1""")
         t_r, c_r = cur.fetchone()
