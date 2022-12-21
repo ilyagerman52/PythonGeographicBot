@@ -52,7 +52,7 @@ class Bot:
             markup = types.InlineKeyboardMarkup()
             but_start = types.InlineKeyboardButton(text='Начать', callback_data='change_category')
             markup.add(but_start)
-            self.bot.send_message(chat_id, HELP_MESSAGE)
+            self.bot.send_message(chat_id, HELP_MESSAGE, parse_mode='html')
             # self.bot.send_photo(chat_id, photo='https://raw.githubusercontent.com/ilyagerman52/PythonGeographicBot/main/img.png', reply_markup=markup)
         elif t == 'choose_category':
             message_text = 'Выбери тему.'
