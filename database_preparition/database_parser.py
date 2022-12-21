@@ -105,7 +105,7 @@ def get_brd():
             cur.execute(f'update countries set flg="{flag}", brd="{brd}" where c="{name}"')
             db.commit()
 
-get_brd()
+# get_brd()
 # get_countries()
 # get_towns()
 # cur.execute('select * from towns')
