@@ -7,7 +7,7 @@ GeoBot = Bot(TOKEN)
 
 @GeoBot.bot.message_handler(commands=['start'])
 def say_hello(message):
-    GeoBot.print_special_message(message.chat.id, "hello")
+    GeoBot.print_special_message(message.chat.id, "hello", name=message.from_user.first_name)
 
 
 @GeoBot.bot.callback_query_handler(func=lambda call: True)

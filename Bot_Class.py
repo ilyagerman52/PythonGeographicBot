@@ -4,7 +4,7 @@ from telebot import types
 from dataclasses import dataclass
 
 from question_generation import generate_question
-from utils import good_name
+from utils import good_name, HELP_MESSAGE, UNEXPEXTED
 import BD
 
 @dataclass
@@ -37,9 +37,9 @@ class Bot:
         self.question_types = ['cC', 'tc', 'wthr', 'cd', 'rd', 'flg', 'brd', 'rnd']
         self.chats = dict()
 
-    def print_special_message(self, chat_id, t='unexpected'):
+    def print_special_message(self, chat_id, t='unexpected', name='неудачник'):
         if t == 'unexpected':
-            self.bot.send_message(chat_id, 'Я тебя не понял. Справку можно вызвать командой /help .')
+            self.bot.send_message(chat_id, UNEXPEXTED)
         elif t == 'hello':
             BD.add_user(chat_id)
             self.chats[chat_id] = Chat()
@@ -47,12 +47,13 @@ class Bot:
             but_y = types.InlineKeyboardButton(text="Да", callback_data='yes')
             but_n = types.InlineKeyboardButton(text="Посмотреть справку", callback_data='help')
             markup.add(but_y, but_n)
-            self.bot.send_message(chat_id, 'Привет, неудачник! Готов отвечать на вопросы?', reply_markup=markup)
+            self.bot.send_message(chat_id, f'Привет, {name}! Готов отвечать на вопросы?', reply_markup=markup)
         elif t == 'help':
             markup = types.InlineKeyboardMarkup()
             but_start = types.InlineKeyboardButton(text='Начать', callback_data='change_category')
             markup.add(but_start)
-            self.bot.send_photo(chat_id, photo='https://raw.githubusercontent.com/ilyagerman52/PythonGeographicBot/main/img.png', reply_markup=markup)
+            self.bot.send_message(chat_id, HELP_MESSAGE)
+            # self.bot.send_photo(chat_id, photo='https://raw.githubusercontent.com/ilyagerman52/PythonGeographicBot/main/img.png', reply_markup=markup)
         elif t == 'choose_category':
             message_text = 'Выбери тему.'
             markup = types.InlineKeyboardMarkup(row_width=1)

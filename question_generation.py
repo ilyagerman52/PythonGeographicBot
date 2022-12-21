@@ -1,6 +1,6 @@
 import random
 
-from utils import *
+from utils import weather_in_city
 from database_parser import *
 
 
