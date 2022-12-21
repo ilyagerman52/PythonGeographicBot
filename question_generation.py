@@ -9,7 +9,7 @@ def gen_wrong_answers(cat, true_ans):
     count = 0
     while count != 3:
         new_ans = None
-        conn = sqlite3.connect("geonames.db")
+        conn = sqlite3.connect("database_preparition/geonames.db")
         cur = conn.cursor()
         if cat == 'c':
             cur.execute("""SELECT c_r
@@ -36,7 +36,7 @@ def gen_wrong_answers(cat, true_ans):
 
 
 def generate_question(category):
-    conn = sqlite3.connect("geonames.db")
+    conn = sqlite3.connect("database_preparition/geonames.db")
     cur = conn.cursor()
     if category == 'cC':  # country -> Capital
         cur.execute("""SELECT c_r, Cap_r

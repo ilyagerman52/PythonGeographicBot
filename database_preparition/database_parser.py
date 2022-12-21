@@ -3,8 +3,18 @@ from bs4 import BeautifulSoup
 import re
 import sqlite3
 import json
+import translators
 
-from utils import translate
+def translate(en_str):
+    ru_str = translators.translate_text(en_str, 'yandex', 'auto', 'ru')
+    if ru_str[:3] == 'г. ':
+        ru_str = ru_str[3:]
+    if len(re.findall(r"[а-яA-Я-'.’ ]", ru_str)) != len(ru_str):
+        print('error')
+        return None
+    ru_str.replace('Город', '').strip()
+    return ru_str
+
 
 
 db_file = 'geonames.db'
@@ -26,8 +36,8 @@ Cap text,
 Cap_r text,
 a integer,
 p integer,
-flg picture,
-brd picture
+flg text,
+brd text
 )""")
 db.commit()
 
@@ -91,9 +101,11 @@ def get_brd():
             name = row['name']
             flag = row['flag']
             brd = row['shape']
+            print(name, flag, brd)
             cur.execute(f'update countries set flg="{flag}", brd="{brd}" where c="{name}"')
+            db.commit()
 
-
+get_brd()
 # get_countries()
 # get_towns()
 # cur.execute('select * from towns')

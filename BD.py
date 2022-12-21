@@ -1,6 +1,6 @@
 import sqlite3
 
-connect = sqlite3.connect('data.db', check_same_thread=False)
+connect = sqlite3.connect('database_preparition/profiles.db', check_same_thread=False)
 cursor = connect.cursor()
 cursor.execute("""CREATE TABLE IF NOT EXISTS login_id(
     id INTEGER,
