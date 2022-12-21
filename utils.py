@@ -14,7 +14,7 @@ def translate(en_str):
         ru_str = ru_str[3:]
     if len(re.findall(r"[а-яA-Я-'.’ ]", ru_str)) != len(ru_str):
         print(en_str, ru_str)
-        return
+        return None
     return ru_str
 
 

@@ -41,6 +41,8 @@ def generate_question(category):
     if category == 'cC':  # country -> Capital
         cur.execute("""SELECT c_r, Cap_r
                         FROM countries
+                        where not c_r=None
+                        not Cap_=None
                         ORDER BY RANDOM()
                         LIMIT 1""")
         c_r, C_r = cur.fetchone()
@@ -48,6 +50,7 @@ def generate_question(category):
     elif category == 'wthr':  # weather -> town
         cur.execute("""SELECT t_r
                         FROM towns
+                        where not t_r=None
                         ORDER BY RANDOM()
                         LIMIT 1""")
         t_ = cur.fetchone()[0]
@@ -57,10 +60,12 @@ def generate_question(category):
     elif category == 'tc':  # town -> country
         cur.execute("""SELECT t_r, c_r
                         FROM towns
+                        where not t_r=None
+                        not c_r=None 
                         ORDER BY RANDOM()
                         LIMIT 1""")
-        temp = cur.fetchone()
-        return 'В какой стране находится город ' + temp[0], temp[1], gen_wrong_answers('c', temp[1])
+        t_r, c_r = cur.fetchone()
+        return 'В какой стране находится город ' + t_r, c_r, gen_wrong_answers('c', c_r)
     elif category == "cd":  # country <- description
         cur.execute("""SELECT *
                         FROM ege_17
@@ -79,6 +84,7 @@ def generate_question(category):
     elif category == "flg":
         cur.execute("""SELECT c_r, flg
                         FROM countries
+                        where not flg="flag"
                         ORDER BY RANDOM()
                         LIMIT 1""")
         c_r, flg = cur.fetchone()
@@ -86,6 +92,7 @@ def generate_question(category):
     elif category == "brd":
         cur.execute("""SELECT c_r, brd
                         FROM countries
+                        where not brd="brd"
                         ORDER BY RANDOM()
                         LIMIT 1""")
         c_r, brd = cur.fetchone()

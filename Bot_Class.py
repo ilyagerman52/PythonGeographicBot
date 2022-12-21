@@ -144,7 +144,8 @@ class Bot:
         markup.add(but_change)
         markup.add(but_exit)
         if category in ['flg', 'brd']:
-            self.bot.send_message(chat_id, self.chats[chat_id].premessage)
+            if self.chats[chat_id].premessage != '':
+                self.bot.send_message(chat_id, self.chats[chat_id].premessage)
             self.bot.send_photo(chat_id, photo=question_image, caption='Угадайте страну:', reply_markup=markup)
         else:
             self.bot.send_message(chat_id, question, reply_markup=markup)

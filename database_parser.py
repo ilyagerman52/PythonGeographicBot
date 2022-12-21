@@ -60,8 +60,8 @@ def get_countries():
     r = requests.get(url)
     r = r.content.decode('utf-8')
     soup = BeautifulSoup(r, 'html.parser')
-    for link in soup.find_all('tr'):
-        blocks = link.find_all('td')
+    for table in soup.find_all('tr'):
+        blocks = table.find_all('td')
         if len(blocks) == 9:
             c = blocks[4].text
             C = blocks[5].text
@@ -98,6 +98,6 @@ def get_brd():
 
 # get_countries()
 # get_towns()
-# cur.execute('select * from countries')
+# cur.execute('select * from towns')
 # res = cur.fetchall()
 # print(*res, sep='\n')
