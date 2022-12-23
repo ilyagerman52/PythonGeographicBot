@@ -92,7 +92,7 @@ def generate_question(category):
     elif category == "brd":
         cur.execute("""SELECT c_r, brd
                         FROM countries
-                        where not brd="brd"
+                        where not brd='brd'
                         ORDER BY RANDOM()
                         LIMIT 1""")
         c_r, brd = cur.fetchone()
