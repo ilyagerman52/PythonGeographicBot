@@ -1,7 +1,7 @@
 import asyncio
 
 from Bot_Class import Bot
-import BD
+import profiles
 
 TOKEN = "5986823731:AAHVMdWsWb_sUjBIbQz4j_1ja_mm41tNkHw"
 GeoBot = Bot(TOKEN)
@@ -34,13 +34,12 @@ async def top(message):
 
 @GeoBot.dp.message_handler(commands=['change_username'])
 async def change_username(message):
-    if message.text == '/change_username':
-        await GeoBot.bot.send_message(message.chat.id, 'Введите новый Username')
-        GeoBot.username_reqeust = True
+    await GeoBot.bot.send_message(message.chat.id, 'Введите новый Username')
+    GeoBot.username_reqeust = True
 
 
 async def UU(message):
-    BD.update_username(message.chat.id, str(message.text))
+    profiles.update_username(message.chat.id, str(message.text))
 
 
 @GeoBot.dp.message_handler(content_types=['text'])

@@ -5,7 +5,7 @@ from aiogram import Dispatcher, types
 
 from question_generation import generate_question
 from utils import good_name, HELP_MESSAGE, UNEXPEXTED
-import BD
+import profiles
 
 
 @dataclass
@@ -44,10 +44,10 @@ class Bot:
         if t == 'unexpected':
             await self.bot.send_message(chat_id, UNEXPEXTED)
         elif t == 'hello':
-            BD.add_user(chat_id)
+            profiles.add_user(chat_id)
             self.chats[chat_id] = Chat()
             markup = types.InlineKeyboardMarkup(row_width=1)
-            but_y = types.InlineKeyboardButton(text="Да", callback_data='yes')
+            but_y = types.InlineKeyboardButton(text="Да", callback_data='start_q')
             but_n = types.InlineKeyboardButton(text="Посмотреть справку", callback_data='help')
             markup.add(but_y, but_n)
             await self.bot.send_message(chat_id, f'Привет, {name}! Готов отвечать на вопросы?', reply_markup=markup)
@@ -71,13 +71,24 @@ class Bot:
             markup.add(but_cC, but_tc, but_wthr, but_cd, but_rd, but_flg, but_brd, but_rnd, but_vars)
             await self.bot.send_message(chat_id, message_text, reply_markup=markup)
         elif t == 'profile':
-            name, streak = BD.get_stats(chat_id)
-            await self.bot.send_message(chat_id, f'Name: {name} \nStreak: {streak}')
+            name, streak, max_streak, total_answers, correct_answers, accuracy, rating = profiles.get_stats(chat_id)
+            await self.bot.send_message(chat_id, f'Имя пользователя: {name}'
+                                                 f'\nРейтинг: {rating}'
+                                                 f'\nВсего ответов: {total_answers}'
+                                                 f'\nВерных ответов: {correct_answers}'
+                                                 f'\nПроцент верных ответов: {accuracy}%'
+                                                 f'\nМаксимальный стрик: {max_streak}'
+                                                 f'\nСтрик сейчас: {streak}')
         elif t == 'top':
-            leader = BD.leader()
+            leader = profiles.leader()
             s = str('TOP:' + '\n')
+            i = 1
             for user in leader:
-                s += user[0] + ' ' + str(user[1]) + '\n'
+                s += str(i) + '. ' + user[0] + '\n        Рейтинг: ' + str(user[6]) + \
+                                '\n        Всего ответов: ' + str(user[3]) + \
+                                '\n        Процент верных ответов: ' + str(user[5]) + \
+                                '%\n        Максимальный стрик: ' + str(user[2]) + '\n'
+                i += 1
             await self.bot.send_message(chat_id, s)
 
     async def reply_inline_call(self, call):
@@ -87,7 +98,7 @@ class Bot:
         if call.data == 'help':
             await self.bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id, reply_markup=None)
             await self.print_special_message(chat_id, 'help')
-        elif call.data == 'yes':
+        elif call.data == 'start_q':
             await self.bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id, reply_markup=None)
             self.chats[chat_id].premessage = 'Отлично!'
             await self.print_special_message(chat_id, 'choose_category')
@@ -102,11 +113,11 @@ class Bot:
                                                  call.message.message_id)
             await self.print_special_message(chat_id, 'choose_category')
         elif call.data == 'correct_ans':
-            BD.update_streak(chat_id, 1)
+            profiles.update_stats(chat_id, 1)
             self.chats[chat_id].premessage = 'Верно!'
             await self.ask(call.message.chat.id, self.chats[chat_id].category, self.chats[chat_id].ans_hidden)
         elif call.data == 'wrong_ans':
-            BD.update_streak(chat_id, 0)
+            profiles.update_stats(chat_id, 0)
             self.chats[chat_id].premessage = 'Неверно! Правильный ответ: ' + self.chats[chat_id].waiting_answer
             await self.ask(call.message.chat.id, self.chats[chat_id].category, self.chats[chat_id].ans_hidden)
         elif call.data in self.question_types:
@@ -166,13 +177,13 @@ class Bot:
         elif (isinstance(self.chats[chat_id].waiting_answer, str)
               and received_answer == good_name(self.chats[chat_id].waiting_answer)) or \
                 (received_answer in good_name(self.chats[chat_id].waiting_answer).split('|')):
-            BD.update_streak(chat_id, 1)
+            profiles.update_stats(chat_id, 1)
             self.chats[chat_id].premessage = 'Верно!'
             self.chats[chat_id].waiting_answer = None
             self.chats[chat_id].streak += 1
             await self.ask(message.chat.id, self.chats[chat_id].category, self.chats[chat_id].ans_hidden)
         else:
-            BD.update_streak(chat_id, 0)
+            profiles.update_stats(chat_id, 0)
             self.chats[chat_id].premessage = 'Неверно! Правильный ответ: ' + self.chats[chat_id].waiting_answer
             self.chats[chat_id].waiting_answer = None
             self.chats[chat_id].streak = 0
