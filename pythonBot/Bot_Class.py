@@ -1,11 +1,12 @@
 import random
-import telebot
-from telebot import types
 from dataclasses import dataclass
+import aiogram
+from aiogram import Dispatcher, types
 
 from question_generation import generate_question
 from utils import good_name, HELP_MESSAGE, UNEXPEXTED
-import BD
+import profiles
+
 
 @dataclass
 class Chat:
@@ -31,29 +32,30 @@ class Bot:
     """
 
     def __init__(self, token):
-        self.bot = telebot.TeleBot(token)
-        self.bot_username = self.bot.user.username
-        self.bot_id = self.bot.user.id
+        self.bot = aiogram.Bot(token)
+        self.dp = Dispatcher(self.bot)
+        self.username_reqeust = False
+        # self.bot_username = self.bot.user.username
+        # self.bot_id = self.bot.user.id
         self.question_types = ['cC', 'tc', 'wthr', 'cd', 'rd', 'flg', 'brd', 'rnd']
         self.chats = dict()
 
-    def print_special_message(self, chat_id, t='unexpected', name='неудачник'):
+    async def print_special_message(self, chat_id, t='unexpected', name='неудачник'):
         if t == 'unexpected':
-            self.bot.send_message(chat_id, UNEXPEXTED)
+            await self.bot.send_message(chat_id, UNEXPEXTED)
         elif t == 'hello':
-            BD.add_user(chat_id)
+            profiles.add_user(chat_id)
             self.chats[chat_id] = Chat()
             markup = types.InlineKeyboardMarkup(row_width=1)
-            but_y = types.InlineKeyboardButton(text="Да", callback_data='yes')
+            but_y = types.InlineKeyboardButton(text="Да", callback_data='start_q')
             but_n = types.InlineKeyboardButton(text="Посмотреть справку", callback_data='help')
             markup.add(but_y, but_n)
-            self.bot.send_message(chat_id, f'Привет, {name}! Готов отвечать на вопросы?', reply_markup=markup)
+            await self.bot.send_message(chat_id, f'Привет, {name}! Готов отвечать на вопросы?', reply_markup=markup)
         elif t == 'help':
             markup = types.InlineKeyboardMarkup()
             but_start = types.InlineKeyboardButton(text='Начать', callback_data='change_category')
             markup.add(but_start)
-            self.bot.send_message(chat_id, HELP_MESSAGE, parse_mode='html')
-            # self.bot.send_photo(chat_id, photo='https://raw.githubusercontent.com/ilyagerman52/PythonGeographicBot/main/img.png', reply_markup=markup)
+            await self.bot.send_message(chat_id, HELP_MESSAGE, parse_mode='html')
         elif t == 'choose_category':
             message_text = 'Выбери тему.'
             markup = types.InlineKeyboardMarkup(row_width=1)
@@ -67,63 +69,79 @@ class Bot:
             but_rnd = types.InlineKeyboardButton(text='Случайные вопросы', callback_data='rnd')
             but_vars = types.InlineKeyboardButton(text='Добавить/убрать варианты ответа', callback_data='change_vars')
             markup.add(but_cC, but_tc, but_wthr, but_cd, but_rd, but_flg, but_brd, but_rnd, but_vars)
-            self.bot.send_message(chat_id, message_text, reply_markup=markup)
+            await self.bot.send_message(chat_id, message_text, reply_markup=markup)
         elif t == 'profile':
-            name, streak = BD.get_stats(chat_id)
-            self.bot.send_message(chat_id, f'Name: {name} \nStreak: {streak}')
+            name, streak, max_streak, total_answers, correct_answers, accuracy, rating = profiles.get_stats(chat_id)
+            await self.bot.send_message(chat_id, f'Имя пользователя: {name}'
+                                                 f'\nРейтинг: {rating}'
+                                                 f'\nВсего ответов: {total_answers}'
+                                                 f'\nВерных ответов: {correct_answers}'
+                                                 f'\nПроцент верных ответов: {accuracy}%'
+                                                 f'\nМаксимальный стрик: {max_streak}'
+                                                 f'\nСтрик сейчас: {streak}')
         elif t == 'top':
-            leader = BD.leader()
+            leader = profiles.leader()
             s = str('TOP:' + '\n')
+            i = 1
             for user in leader:
-                s += user[0] + ' ' + str(user[1]) + '\n'
-            self.bot.send_message(chat_id, s)
+                s += str(i) + '. ' + user[0] + '\n        Рейтинг: ' + str(user[6]) + \
+                                '\n        Всего ответов: ' + str(user[3]) + \
+                                '\n        Процент верных ответов: ' + str(user[5]) + \
+                                '%\n        Максимальный стрик: ' + str(user[2]) + '\n'
+                i += 1
+            await self.bot.send_message(chat_id, s)
 
-    def reply_inline_call(self, call):
+    async def reply_inline_call(self, call):
         chat_id = call.message.chat.id
-        if chat_id not in self.chats: self.chats[chat_id] = Chat()
+        if chat_id not in self.chats:
+            self.chats[chat_id] = Chat()
         if call.data == 'help':
-            self.bot.edit_message_reply_markup(call.message.chat.id, call.message.id, reply_markup=None)
-            self.print_special_message(chat_id, 'help')
-        elif call.data == 'yes':
-            self.bot.edit_message_reply_markup(call.message.chat.id, call.message.id, reply_markup=None)
+            await self.bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id, reply_markup=None)
+            await self.print_special_message(chat_id, 'help')
+        elif call.data == 'start_q':
+            await self.bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id, reply_markup=None)
             self.chats[chat_id].premessage = 'Отлично!'
-            self.print_special_message(chat_id, 'choose_category')
+            await self.print_special_message(chat_id, 'choose_category')
         elif call.data == 'change_vars':
             self.chats[chat_id].ans_hidden = not self.chats[chat_id].ans_hidden
-            self.bot.edit_message_reply_markup(call.message.chat.id, call.message.id, reply_markup=None)
+            await self.bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id, reply_markup=None)
             if self.chats[chat_id].ans_hidden:
-                self.bot.edit_message_text('Варианты ответа выключены', call.message.chat.id, call.message.id)
+                await self.bot.edit_message_text('Варианты ответа выключены', call.message.chat.id,
+                                                 call.message.message_id)
             else:
-                self.bot.edit_message_text('Варианты ответа включены', call.message.chat.id, call.message.id)
-            self.print_special_message(chat_id, 'choose_category')
+                await self.bot.edit_message_text('Варианты ответа включены', call.message.chat.id,
+                                                 call.message.message_id)
+            await self.print_special_message(chat_id, 'choose_category')
         elif call.data == 'correct_ans':
-            BD.update_streak(chat_id, 1)
+            profiles.update_stats(chat_id, 1)
             self.chats[chat_id].premessage = 'Верно!'
-            self.ask(call.message.chat.id, self.chats[chat_id].category, self.chats[chat_id].ans_hidden)
+            await self.ask(call.message.chat.id, self.chats[chat_id].category, self.chats[chat_id].ans_hidden)
         elif call.data == 'wrong_ans':
-            BD.update_streak(chat_id, 0)
+            profiles.update_stats(chat_id, 0)
             self.chats[chat_id].premessage = 'Неверно! Правильный ответ: ' + self.chats[chat_id].waiting_answer
-            self.ask(call.message.chat.id, self.chats[chat_id].category, self.chats[chat_id].ans_hidden)
+            await self.ask(call.message.chat.id, self.chats[chat_id].category, self.chats[chat_id].ans_hidden)
         elif call.data in self.question_types:
-            self.bot.edit_message_reply_markup(chat_id, call.message.id, reply_markup=None)
+            await self.bot.edit_message_reply_markup(chat_id, call.message.message_id, reply_markup=None)
             self.chats[chat_id].category = call.data
-            self.ask(chat_id, call.data, self.chats[chat_id].ans_hidden)
+            await self.ask(chat_id, call.data, self.chats[chat_id].ans_hidden)
         elif call.data == 'change_category':
             self.chats[chat_id].premessage = ''
             self.chats[chat_id].waiting_answer = None
             self.chats[chat_id].category = None
-            self.bot.edit_message_reply_markup(chat_id, call.message.id, reply_markup=None)
-            self.print_special_message(chat_id, 'choose_category')
+            await self.bot.edit_message_reply_markup(chat_id, call.message.message_id, reply_markup=None)
+            await self.print_special_message(chat_id, 'choose_category')
         elif call.data == 'exit':
-            self.bot.send_message(chat_id, 'А придётся!')
+            await self.bot.send_message(chat_id, 'А придётся!')
             self.chats[chat_id].premessage = ''
             self.chats[chat_id].waiting_answer = None
             self.chats[chat_id].category = None
-            self.ask(chat_id, self.chats[chat_id].category, self.chats[chat_id].ans_hidden)
+            await self.ask(chat_id, self.chats[chat_id].category, self.chats[chat_id].ans_hidden)
 
-    def ask(self, chat_id, category='cC', ans_hidden=False):
-        if category is None: category = 'cC'
-        if chat_id not in self.chats: self.chats[chat_id] = Chat()
+    async def ask(self, chat_id, category='cC', ans_hidden=False):
+        if category is None:
+            category = 'cC'
+        if chat_id not in self.chats:
+            self.chats[chat_id] = Chat()
         question, answer, vars = generate_question(category)
         question_image = question
         question = self.chats[chat_id].premessage + '\n\n' + question
@@ -144,32 +162,32 @@ class Bot:
         markup.add(but_exit)
         if category in ['flg', 'brd']:
             if self.chats[chat_id].premessage != '':
-                self.bot.send_message(chat_id, self.chats[chat_id].premessage)
-            self.bot.send_photo(chat_id, photo=question_image, caption='Угадайте страну:', reply_markup=markup)
+                await self.bot.send_message(chat_id, self.chats[chat_id].premessage)
+            await self.bot.send_photo(chat_id, photo=question_image, caption='Угадайте страну:', reply_markup=markup)
         else:
-            self.bot.send_message(chat_id, question, reply_markup=markup)
+            await self.bot.send_message(chat_id, question, reply_markup=markup)
 
-
-    def check_answer(self, message):
+    async def check_answer(self, message):
         chat_id = message.chat.id
         received_answer = good_name(message.text.strip())
-        if chat_id not in self.chats: self.chats[chat_id] = Chat()
+        if chat_id not in self.chats:
+            self.chats[chat_id] = Chat()
         if self.chats[chat_id].waiting_answer is None:
-            self.print_special_message(message.chat.id, 'unexpected')
+            await self.print_special_message(message.chat.id, 'unexpected')
         elif (isinstance(self.chats[chat_id].waiting_answer, str)
               and received_answer == good_name(self.chats[chat_id].waiting_answer)) or \
                 (received_answer in good_name(self.chats[chat_id].waiting_answer).split('|')):
-            BD.update_streak(chat_id, 1)
+            profiles.update_stats(chat_id, 1)
             self.chats[chat_id].premessage = 'Верно!'
             self.chats[chat_id].waiting_answer = None
             self.chats[chat_id].streak += 1
-            self.ask(message.chat.id, self.chats[chat_id].category, self.chats[chat_id].ans_hidden)
+            await self.ask(message.chat.id, self.chats[chat_id].category, self.chats[chat_id].ans_hidden)
         else:
-            BD.update_streak(chat_id, 0)
+            profiles.update_stats(chat_id, 0)
             self.chats[chat_id].premessage = 'Неверно! Правильный ответ: ' + self.chats[chat_id].waiting_answer
             self.chats[chat_id].waiting_answer = None
             self.chats[chat_id].streak = 0
-            self.ask(message.chat.id, self.chats[chat_id].category, self.chats[chat_id].ans_hidden)
+            await self.ask(message.chat.id, self.chats[chat_id].category, self.chats[chat_id].ans_hidden)
 
-    def start(self):
-        self.bot.polling(none_stop=True, interval=0)
+    async def start(self):
+        await self.dp.start_polling(self.bot)
